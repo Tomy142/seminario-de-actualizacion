@@ -9,33 +9,11 @@
 
 using namespace std;
 
-void LoginUser();
 void UserMenu(const string& user);
 void MenuOptions(const string& user);
 void Changepassword(const string& user);
-void PasswordChecker(const string& password, const string& newpassword);
+bool PasswordChecker(const string& newpassword);
 void Exit();
-
-struct Digit
-{
-    static constexpr auto lookahead ="(?=.*?[0-9])";
-};
-
-struct Lower_case
-{
-    static constexpr auto lookahead ="(?=.*?[a-z])";
-};
-
-struct Upper_case
-{
-    static constexpr auto lookahead ="(?=.*?[A-Z])";
-};
-
-struct Special_character
-{
-    static constexpr auto lookahead ="(?=.*?[$!?#@%&*^-])";
-};
-
 
 
 class Customer{
@@ -59,6 +37,7 @@ class CompanyManager{
         CompanyManager();
         void CreateCustomer(const string& user,  const string& password);
         shared_ptr<Customer> ValidateCustomer(const string& user, const string& password);
+        shared_ptr<Customer> GetCustomer(const string& user);
 };
 
 CompanyManager::CompanyManager(){
@@ -80,16 +59,25 @@ shared_ptr<Customer>  CompanyManager::ValidateCustomer(const string& user, const
     return nullptr;
 }
 
+shared_ptr<Customer> CompanyManager::GetCustomer(const string& user)
+{
+    for(const auto& customer : customers){
+        if(customer->getUser() == user) {
+            return customer;
+        }
+    }
+    return nullptr; 
+}
+
 void LoginUser()
 {
     CompanyManager companyManager;
     string user;
     string password;
-    string error = "Usuario y/o contraseña incorrecta";
     int trys = 0;
     int maxtrys = 3;
 
-    cout<<"--Gestion de pedidos--"<<endl;
+    cout<<"--Inicio de Sesion--"<<endl;
     
     while (trys < maxtrys){
         cout<<"Ingrese su usuario: ";
@@ -109,11 +97,18 @@ void LoginUser()
     cout<<"Usuario bloqueado. Contacte al administrador"<<endl;
 }
 
-void PasswordChecker(const string& password, const string& newpassword)
+bool PasswordChecker(const string& newpassword)
 {
-    if(newpassword <= Digit{8,16} && newpassword >= Upper_case{1} && newpassword >= Special_character{2} ){
+    regex passwordRegex("^(?=.*[A-Z])(?=.*[$!?#@%&*^-].*[$!?#@%&*^-])(?=.*[0-9])(?=.*[a-z]).{8,16}$");
 
+    if(!regex_match(newpassword, passwordRegex)){
+        cout<<"La contraseña no cumple con los requisitos"<<endl;
+        cout<<"Entre 8 y 16 caracteres."<<endl;
+        cout<<"Al menos una mayuscula."<<endl;
+        cout<<"Al menos 2 caracteres especiales."<<endl;
+        return false;
     }
+    return true;
 }
 
 void Changepassword(const string& user)
@@ -126,10 +121,14 @@ void Changepassword(const string& user)
     cout<<"Ingrese su nueva contraseña: ";
     getline(cin, newpassword);
 
-    shared_ptr<Customer> customer = companyManager.ValidateCustomer(user, newpassword);
+    if(!PasswordChecker(newpassword)){
+        cout<<"Por favor, intente nuevamente."<<endl;
+        return;
+    }
+
+    shared_ptr<Customer> customer = companyManager.GetCustomer(user);
 
     if(customer) {
-        PasswordChecker();
         customer->setPassword(newpassword);
         cout<<"Contraseña cambiada con exito."<<endl;
     }else{
@@ -178,7 +177,7 @@ void UserMenu(const string& user)
     cout<<"1. Cambiar contraseña"<<endl;
     cout<<"X. Salir"<<endl;
 
-    MenuOptions( user);
+    MenuOptions(user);
 }
 
 int main ()
