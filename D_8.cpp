@@ -354,15 +354,15 @@ void LoginUser()
     int maxtrys = 3;
 
     cout<<"--Inicio de Sesion--"<<endl;
-    
+    cin.ignore();
     while (trys < maxtrys){
         cout<<"Ingrese su usuario: ";
         getline(cin, user);
         cout<<"Ingrese su contraseña: ";
         getline(cin, password);
-        system("cls");
         cout<<"Ingrese su rol: ";
         getline(cin, role);
+        system("cls");
 
         if(companyManager.ValidateCustomer(user, password, role)){
             cout<<"Bienvenido, "<<user<<endl;
