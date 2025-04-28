@@ -9,8 +9,6 @@
 
 using namespace std;
 
-CompanyManager companyManager;
-
 void MainMenu();
 void LoginUser();
 void CreateUser();
@@ -109,6 +107,8 @@ class CompanyManager{
         void EditArticle();
         void DeleteArticle();
 };
+
+CompanyManager companyManager;
 
 CompanyManager::CompanyManager(){
     customers.push_back(make_shared<Customer>("Juan","12345"));
@@ -421,7 +421,7 @@ void ArticleMenu()
     cout<<"2. Agregar Articulo"<<endl;
     cout<<"3. Editar Articulo"<<endl;
     cout<<"4. Eliminar Articulo"<<endl;
-    cout<<"Su opcion: "<<endl;
+    cout<<"Su opcion: ";
     cin>>artopt;
     cin.ignore();
 
