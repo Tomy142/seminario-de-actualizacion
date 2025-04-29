@@ -449,8 +449,8 @@ void MenuOptions( const string& user)
 
     unordered_map<string, function<void()>> Options_M ={
         {"1", [&](){Changepassword(user);}},
-        {"2",[&](){ArticleMenu(role);}},
-        {"3",[&](){CreateUser();}},
+        {"2",[&](){CreateUser();}},
+        {"3",[&](){ArticleMenu(role);}},
         {"X", Exit},
         {"x", Exit}
     };
@@ -526,12 +526,18 @@ void ArticleMenu(const string& role)
 
 void UserMenu(const string& user)
 {
-    
-    cout<<"1. Cambiar contraseña"<<endl;
-    cout<<"2. Gestor de Articulos"<<endl;
-    cout<<"3. Crear nuevo usuario"<<endl;
-    cout<<"X. Salir"<<endl;
+    shared_ptr<Customer> customer = companyManager.GetCustomer(user);
 
+    string role = customer->getRole();
+
+    if(role== "Administrador"){
+        cout<<"1. Cambiar contraseña"<<endl;
+        cout<<"2. Crear nuevo usuario"<<endl;
+    }
+    
+    cout<<"3. Gestor de Articulos "<<endl;
+    cout<<"X. Salir"<<endl;
+        
     MenuOptions( user);
 }
 
