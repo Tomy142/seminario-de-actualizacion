@@ -11,9 +11,8 @@ class LoginApplicationView
 		const menuOpt = new Map();
 
 		menuOpt.set(1,() => this.show());
-		menuOpt.set(2,()=> this.createUser());
-
-		let option = Number(window.prompt("1. Iniciar Sesion || 2. Crear Usuario"));
+		
+		let option = Number(window.prompt("1. Iniciar Sesion"));
 
 		if(menuOpt.has(option)){
 			return menuOpt.get(option)();
@@ -30,8 +29,10 @@ class LoginApplicationView
 		let role = window.prompt("Ingrese su rol: Administrador | Vendedor | Cliente | Trabajador de deposito");
 		
 		let api_return = this._api.authenticateUser(username,password, role);
-
+		let userdata = this._api.isValidUserGetData(username);
+		
 		api_return.username = username;
+		api_return.role = userdata ? userdata.role : role;
 		
 		if ( api_return.status )
 		{
@@ -49,6 +50,10 @@ class LoginApplicationView
 					alert('Usuario y/o contraseña incorrecta');
 				break;
 
+				case 'ROLE_MISMATCH':
+					alert('El rol no coincide con el usuario');
+				break;
+
 				default:
 					alert('Error desconocido');
 				break;
@@ -58,18 +63,36 @@ class LoginApplicationView
 		return api_return;	
 	}
 
-	userOptions(username)
+	userOptions(username, role)
 	{
 		
 		const optMap = new Map();
-		optMap.set(1,() => {
+		let optNumber = 1;
+		let optionText = "";
+
+		optMap.set(optNumber,() => {
 			this._api.changePassword(username);
-		});
-		optMap.set(2,()=>{this.articleHandlerMenu(username)})
+			});
+
+		optionText += `${optNumber}. Cambiar contraseña || `;
+		optNumber++;
+
+		optMap.set(optNumber,()=>{this.articleHandlerMenu(username, role)});
+		optionText += `${optNumber}. Gestor de Articulos || `;
+		optNumber++;
+
+
+		if(role ==="Administrador"){
+			optMap.set(optNumber,()=>{this.createUser(username)});
+			optionText += `${optNumber}. Crear usuario || `;
+			optNumber++;
+		}
+		
 		optMap.set("x",()=> {return 'EXIT_TO_MAIN'});
 		optMap.set("X",()=> {return 'EXIT_TO_MAIN'});
+		optionText += "  X. Salir";
 
-		let option = window.prompt("1. Cambiar contraseña || 2. Gestor de Articulos || X. Salir");
+		let option = window.prompt(optionText);
 
 		let parsedOpt = isNaN(option) ? option : Number(option);
 		
@@ -90,17 +113,22 @@ class LoginApplicationView
 
 		if(exit.status)
 		{
-			this.userOptions(exit.username);
+			this.userOptions(exit.username, exit.role);
 		}
 	}
 
-	createUser()
+	createUser(username)
 	{
 		let user = window.prompt("Ingrese el nombre del nuevo usuario: ");
 		let pass = window.prompt("Ingrese la contraseña: ");
-		let rolename = window.prompt("Ingrese el rol del usuario:  Administradores | Clientes | Vendedores | Trabajadores de deposito");
+		let role = window.prompt("Ingrese el rol del usuario:  Administrador | Cliente | Vendedor | Trabajador de deposito");
 
-		const result = this._api.addUser(user, pass, rolename);
+		if(!['Administrador', 'Cliente', 'Vendedor', 'Trabajador de deposito'].includes(role)){
+			alert("Rol invalido");
+			return;
+		}
+
+		const result = this._api.addUser(user, pass, role);
 
 		if(result.status)
 		{
@@ -123,25 +151,58 @@ class LoginApplicationView
 		return { status: false, result: 'CREATED_OR_FAILED'};
 	}
 
-	articleHandlerMenu(username)
+	articleHandlerMenu(username, role)
 	{
 		let userdata = this._api.isValidUserGetData(username);
 
 		if(userdata)
 		{
-			const ArticleOptMap = new Map();
-
-			ArticleOptMap.set(1,()=>{this._api.listArticle(username)});
-			ArticleOptMap.set(2,()=>{this._api.newArticle(username)});
-			ArticleOptMap.set(3,()=>{this._api.editArticle(username)});
-			ArticleOptMap.set(4,()=>{this._api.deleteArticle(username)});
-			ArticleOptMap.set(5,()=>{this._api.buyArticle(username)});
-			ArticleOptMap.set(6,()=>{keepRunning = false});
-			
+			let ArticleOptMap = new Map();
 			let keepRunning = true;
+
 			while(keepRunning)
 			{
-				let articleOpt = Number(window.prompt("1. Listar articulos || 2. Nuevo articulo || 3. Editar articulo  || 4. Eliminar articulo  || 5. Comprar articulo"));
+
+				let articleText = "";
+				let optionNumber = 1;
+				ArticleOptMap.clear();
+
+				articleText += `${optionNumber}. Listar articulos || `;
+				ArticleOptMap.set(optionNumber, () => {this._api.listArticle(username)});
+				optionNumber++;
+
+				if(role=== "Administrador")
+				{
+					articleText += `${optionNumber}. Nuevo articulo || `;
+					ArticleOptMap.set(optionNumber, () => {this._api.newArticle(username)});
+					optionNumber++;
+
+					articleText += `${optionNumber}. Editar articulo || `;
+					ArticleOptMap.set(optionNumber, () => {this._api.editArticle(username)});
+					optionNumber++;
+
+					articleText += `${optionNumber}. Eliminar articulo || `;
+					ArticleOptMap.set(optionNumber, () => {this._api.deleteArticle(username)});
+					optionNumber++;
+				}
+				else if(role =="Trabajador de deposito")
+				{
+					articleText += `${optionNumber}. Editar articulo || `;
+					ArticleOptMap.set(optionNumber, () => {this._api.editArticle(username)});
+					optionNumber++;
+				}
+				else if(role =="Vendedor" || role =="Cliente" )
+				{
+					articleText += `${optionNumber}. Comprar articulo || `;
+					ArticleOptMap.set(optionNumber, () => {this._api.buyArticle(username)});
+					optionNumber++;
+				}
+
+				articleText += `${optionNumber}. Salir || `;
+				ArticleOptMap.set(optionNumber, () => {keepRunning = false;});
+
+				let articleOpt = Number(window.prompt(articleText));
+
 				if(ArticleOptMap.has(Number(articleOpt)))
 				{
 					ArticleOptMap.get(Number(articleOpt))();

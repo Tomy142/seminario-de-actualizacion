@@ -65,7 +65,7 @@ class APIModelAccess
 
 	get rolePermissions(){
 		return{
-			'Adminstrador': ['newArticle', 'editArticle', 'deleteArticle', 'listArticle'],
+			'Administrador': ['newArticle', 'editArticle', 'deleteArticle', 'listArticle'],
 			'Vendedor': ['buyArticle', 'listArticle'],
 			'Cliente': ['buyArticle', 'listArticle'],
 			'Trabajador de deposito': ['editArticle', 'listArticle'],
@@ -78,7 +78,7 @@ class APIModelAccess
 
 		if(!user) return false;
 
-		const role = user.role || user.rolename;
+		const role = user.role;
 		return this.rolePermissions[role]?.includes(actionName);
 	}
 		
@@ -97,7 +97,10 @@ class APIModelAccess
 		};
 
 
-		if ( (username != undefined && username != null && username != '') && (password != undefined && password != null && password != '') && ['Administrador','Vendedor', 'Cliente', 'Trabajador de deposito'].includes(role))
+		if((username != undefined && username != null && username != '') &&
+			(password != undefined && password != null && password != '') &&
+			['Administrador','Vendedor', 'Cliente', 'Trabajador de deposito'].includes(role)
+		)
 		{
 			let userdata = this.isValidUserGetData(username);
 
@@ -105,6 +108,12 @@ class APIModelAccess
 			{
 				if( userdata.password === password )
 				{
+					if(userdata.role !== role)
+					{
+						api_return.status = false;
+						api_return.result= 'ROLE_MISMATCH';
+						return api_return;
+					}
 					api_return.status = true;
 				}
 				else
@@ -183,7 +192,7 @@ class APIModelAccess
 		}
 
 		this._authData.set(username,{
-			rolename: role,
+			role: role,
 			password: password,
 			failedLoginCounter:0,
 			isLocked: false
@@ -336,7 +345,7 @@ class APIModelAccess
 		let quantity = Number(window.prompt("Ingrese la cantidad que desea comprar: "));
 
 		if(quantity > foundArticle.stock){
-			alert(`Stock insuficiente. Solo hay ${foundKey} unidades disponibles`);
+			alert(`Stock insuficiente. Solo hay ${foundArticle.stock} unidades disponibles`);
 			return;
 		}
 
