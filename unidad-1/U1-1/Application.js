@@ -13,25 +13,18 @@ class Application
 
 	init()
 	{
-		console.log("Aplicacion iniciada")
+		this._api_return = this._defaultView.show();
 	}
 
 	run()
 	{
-		while(true)
+		while( this._api_return.result == 'USER_PASSWORD_FAILED' && this._attempts < this._maxLoginFailedAttempts )
 		{
-			this._api_return = this._defaultView.welcomeMenu();
+			this._api_return = this._defaultView.show();
 
 			if ( this._api_return.result == 'USER_PASSWORD_FAILED' )
 			{
 				this._attempts++;
-			}
-
-			if(this._api_return.status){
-				let keeprunning = true;
-				while(keeprunning){
-					keeprunning = this._defaultView.userOptions(this._api_return.username, this._api_return.role);
-				}
 			}
 		}
 	}
