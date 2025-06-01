@@ -1,3 +1,4 @@
+
 class APIModelAccess
 {
 	constructor()
@@ -54,7 +55,7 @@ class APIModelAccess
 		]
 
 		this._authData.set('scorpion', userData[0] );
-		this._authData.set('subZero', userData[1] );
+		this._authData.set('subzero', userData[1] );
 		this._authData.set('liukang', userData[2] );
 		this._authData.set('raiden', userData[3] );
 		
@@ -146,26 +147,17 @@ class APIModelAccess
 		return this._maxLoginFailedAttempts;
 	}
 
-	changePassword(username)
+	changePassword(userdata, newPassword) 
 	{
-		let userdata = this.isValidUserGetData(username);
-
-		if(userdata)
-		{
-			let newPassword = window.prompt("Ingrese una nueva contraseña para "+username+": ");
-
-			if(this.validUserPassword(newPassword))
+			if(this.validUserPassword(newPassword))//back
 			{
-				userdata.password = newPassword;
-				alert("Contraseña cambiada exitosamente");
+				userdata.password = newPassword;// back
+				return{status: true};
 			}
-			
-		}else{
-			alert("Operacion Cancelada...");
-		}
+			return{status: false, result:'INVALID_PASSWORD'}
 	}
 
-	validUserPassword(password)
+	validUserPassword(password) //mover?
 	{
 		const characters = /^(?=.*[A-Z])(?=.*[a-z])(?=.*\d)(?=(?:.*[^a-zA-Z0-9]){2,})(?!.*\s).{8,16}$/;
 
@@ -200,7 +192,7 @@ class APIModelAccess
 		return{status: true};
 	}
 
-	listArticle(username)
+	listArticle(username)// mover?
 	{
 		if(!this.hasPermission(username,'listArticle')){
 			alert("No tenes permisos para agregar articulos");
@@ -214,13 +206,13 @@ class APIModelAccess
 
 		let list ="Listado de articulos:\n";
 
-		for(let [name,article] of  this._authArticle.entries()){
+		for(let [name,article] of  this._authArticle.entries()){//se queda
 			list +=`Nombre: ${name} | ID: ${article.id} | Precio: $${article.price} | Stock: ${article.stock}\n`;
 		}
 		alert(list);
 	}
 
-	newArticle(username)
+	newArticle(username)/* pasar a la vista*/ 
 	{
 		if(!this.hasPermission(username,'newArticle')){
 			alert("No tenes permisos para agregar articulos");
@@ -258,7 +250,7 @@ class APIModelAccess
 		}
 	}
 
-	editArticle(username)
+	editArticle(username) /* pasar a la vista*/ 
 	{
 		if(!this.hasPermission(username,'editArticle')){
 			alert("No tenes permisos para agregar articulos");
@@ -288,7 +280,7 @@ class APIModelAccess
 		}
 	}
 
-	deleteArticle(username)
+	deleteArticle(username) /* pasar a la vista*/ 
 	{
 		if(!this.hasPermission(username,'deleteArticle')){
 			alert("No tenes permisos para agregar articulos");
@@ -312,7 +304,7 @@ class APIModelAccess
 		}
 	}
 
-	buyArticle(username)
+	buyArticle(username) /* pasar a la vista*/ 
 	{
 		if(!this.hasPermission(username,'buyArticle')){
 			alert("No tenes permisos para agregar articulos");

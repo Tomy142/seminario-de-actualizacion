@@ -56,7 +56,7 @@ class LoginApplicationView {
         const normalizedRole = (role || '').trim();
 
         // Opción 1: Cambiar contraseña (disponible para todos los roles)
-        optMap.set(optNumber, () => { this._api.changePassword(username); });
+        optMap.set(optNumber, () => { this.passwordChanger(username); }); //tiene que redirigir a un change password UI
         optionText += `${optNumber}. Cambiar contraseña || `;
         optNumber++;
 
@@ -94,6 +94,25 @@ class LoginApplicationView {
         let exit = this.show();
         if (exit.status) {
             this.userOptions(exit.username, exit.role);
+        }
+    }
+
+    passwordChanger(username)
+    {
+        let userdata = this._api.isValidUserGetData(username);
+
+        if(userdata)
+        {
+            let newPassword = window.prompt("Ingrese una nueva contraseña para "+username+": ");
+
+            let result = this._api.changePassword(userdata, newPassword);
+            if(result.status === true)
+            {
+                alert("Contraseña cambiada exitosamente");
+            }
+            
+        }else{
+			alert("Operacion Cancelada...");
         }
     }
 

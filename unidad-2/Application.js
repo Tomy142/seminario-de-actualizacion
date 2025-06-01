@@ -1,4 +1,4 @@
-import { LoginApplicationView } from './LoginApplicationView.js';
+import { LoginApplicationView } from './ApplicationUI.js';
 
 class Application
 {

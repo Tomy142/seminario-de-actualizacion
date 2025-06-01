@@ -1,4 +1,4 @@
-import { APIModelAccess } from './APIModelAccess.js';
+import { APIModelAccess } from './ApplicationModel.js';
 import { Application } from './Application.js';
 
 
