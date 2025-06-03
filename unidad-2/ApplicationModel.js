@@ -160,13 +160,6 @@ class APIModelAccess
 	validUserPassword(password) //mover?
 	{
 		const characters = /^(?=.*[A-Z])(?=.*[a-z])(?=.*\d)(?=(?:.*[^a-zA-Z0-9]){2,})(?!.*\s).{8,16}$/;
-
-		if(characters.test(password))
-		{
-			alert("Clave validada exitosamente...");
-		}else{
-			alert("Validacion incorrecta...")
-		}
 		return characters.test(password);
 	}
 
@@ -182,6 +175,10 @@ class APIModelAccess
 			return{status: false, result:'INVALID_ROLE'};
 		}
 
+		if(!this.validUserPassword(password)){
+			return { status: false, result: 'INVALID_PASSWORD'};
+		}
+
 		this._authData.set(username,{
 			role: role,
 			password: password,
@@ -192,62 +189,50 @@ class APIModelAccess
 		return{status: true};
 	}
 
-	listArticle(username)// mover?
+	listArticle(username)
 	{
-		if(!this.hasPermission(username,'listArticle')){
-			alert("No tenes permisos para agregar articulos");
-			return;
-		}
-
+		
 		if(this._authArticle.size === 0){
-			alert("No hay articulos registrados.");
-			return;
+			return {status: false, result: 'NO_ARTICLES'};
 		}
+		const articles = [];
 
-		let list ="Listado de articulos:\n";
-
-		for(let [name,article] of  this._authArticle.entries()){//se queda
-			list +=`Nombre: ${name} | ID: ${article.id} | Precio: $${article.price} | Stock: ${article.stock}\n`;
+		for(let [name,article] of  this._authArticle.entries()){
+			articles.push({
+				name,
+				id: article.id,
+				price: article.price,
+				stock: article.stock
+			});
 		}
-		alert(list);
+		return{status: true, result: articles};
 	}
 
-	newArticle(username)/* pasar a la vista*/ 
+	newArticle(username, name, id, price, stock)
 	{
 		if(!this.hasPermission(username,'newArticle')){
-			alert("No tenes permisos para agregar articulos");
-			return;
+			return{status: false, result: 'NO_PERMISSION'};
 		}
-
-		let name = window.prompt("Ingrese el nombre del articulo: ");
 
 		if(this._authArticle.has(name)){
-			alert("Nombre ya existente");
-			return;
+			return{status: false, result: 'NAME_EXISTS'};
 		}
 
-		let id = Number(window.prompt("Ingrese ID del articulo: "));
-
-		for(let [key, value] of this._authArticle){
+		for(let [_, value] of this._authArticle){
 			if(value.id === id){
-				alert("Ya existe un articulo con ese ID");
-				return;
+				return{status: false, result: 'ID_EXISTS'};
 			}
 		}
 
-		let price = parseFloat(window.prompt("Ingrese el precio del articulo:"));
-		let stock = parseInt(window.prompt("Ingrese stock del articulo:"));
-
 		if(name && !isNaN(id) && !isNaN(price) && !isNaN(stock)){
-			this._authArticle.set(name, {
-				id:id,
-				price: price,
-				stock: stock
-			});
-			alert("Articulo agregado correctamente.");
-		}else{
-			alert("Datos invalidos.");
+			return {status: false, result: 'INVALID_DATA'};
 		}
+		this._authArticle.set(name, {
+			id:id,
+			price: price,
+			stock: stock
+		});
+		return { status: true};
 	}
 
 	editArticle(username) /* pasar a la vista*/ 

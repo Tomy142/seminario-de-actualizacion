@@ -116,10 +116,15 @@ class LoginApplicationView {
         }
     }
 
-    createUser(username) {
+    createUser() {
         let user = window.prompt("Ingrese el nombre del nuevo usuario: ");
         let pass = window.prompt("Ingrese la contraseña: ");
         let role = window.prompt("Ingrese el rol del usuario: Administrador, Cliente, Vendedor, Trabajador de deposito");
+
+        if(!user || user.trim()=== ""){
+            alert("El nombre de usuario no puede estar vacio.");
+            return;
+        }
 
         if (!['Administrador', 'Cliente', 'Vendedor', 'Trabajador de deposito'].includes(role)) {
             alert("Rol invalido");
@@ -127,6 +132,7 @@ class LoginApplicationView {
         }
 
         const result = this._api.addUser(user, pass, role);
+
         if (result.status) {
             alert("Usuario creado correctamente.");
         } else {
@@ -139,6 +145,9 @@ class LoginApplicationView {
                     break;
                 case 'INVALID_ROLE':
                     alert("Rol invalido. Solo se permiten: Administrador, Vendedor, Trabajador de deposito, Cliente");
+                    break;
+                case 'INVALID_USERNAME':
+                    alert("Nombre de usuario invalido.");
                     break;
                 default:
                     alert("Error desconocido.");
@@ -161,14 +170,14 @@ class LoginApplicationView {
 
                 // Listar artículos (disponible para todos los roles)
                 articleText += `${optionNumber}. Listar articulos || `;
-                ArticleOptMap.set(optionNumber, () => { this._api.listArticle(username); });
+                ArticleOptMap.set(optionNumber, () => { this.listOfArticles(username); });
                 optionNumber++;
 
                 // Opciones específicas según el rol
                 switch (normalizedRole) {
                     case "Administrador":
                         articleText += `${optionNumber}. Nuevo articulo || `;
-                        ArticleOptMap.set(optionNumber, () => { this._api.newArticle(username); });
+                        ArticleOptMap.set(optionNumber, () => { this.addArticle(username); });
                         optionNumber++;
                         articleText += `${optionNumber}. Editar articulo || `;
                         ArticleOptMap.set(optionNumber, () => { this._api.editArticle(username); });
@@ -202,6 +211,63 @@ class LoginApplicationView {
                     alert("Opcion invalida");
                 }
             }
+        }
+    }
+
+    listOfArticles(username){
+        const result = this._api.listArticle(username);
+
+        if(!result.status){
+            switch(result.result){
+                case 'NO_ARTICLES':
+                    alert("No hay articulos registrados. ");
+                    break;
+                default:
+                    alert("Error desconocido.");
+            }
+        }else{
+            let list ="Listado de articulos:\n";
+            result.result.forEach(article => {
+                list +=`Nombre: ${article.name} | ID: ${article.id} | Precio: $${article.price} | Stock: ${article.stock}\n`;
+            });
+            alert(list);
+        }
+    }
+
+    addArticle(username){
+
+        const name = window.prompt("Ingrese el nombre del articulo: ");
+
+        if(!name){
+            alert("Nombre invalido.");
+            return;
+        }
+
+        const id = Number(window.prompt("Ingrese ID del articulo: "));
+        const price = parseFloat(window.prompt("Ingrese el precio del articulo:"));
+		const stock = parseInt(window.prompt("Ingrese stock del articulo:"));
+
+        const result = this._api.newArticle(username, name, id, price, stock);
+
+        if(!result.status){
+            switch(result.result){
+                case 'NO_PERMISSION':
+                    alert("No tenes permisos para agregar articulos");
+                    break;
+                case 'NAME_EXISTS':
+                    alert("Nombre ya existente.");
+                    break;
+                case 'ID_EXISTS':
+                    alert("Ya existe un articulo con ese ID.");
+                    break;
+                case 'INVALID_DATA':
+                    alert("Datos invalidos.");
+                    break;
+                default:
+                    alert("Error desconocido.");
+            }
+        }else {
+            alert("Articulo agregado correctamente.");
         }
     }
 }
