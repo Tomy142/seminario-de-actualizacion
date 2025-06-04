@@ -224,7 +224,7 @@ class APIModelAccess
 			}
 		}
 
-		if(name && !isNaN(id) && !isNaN(price) && !isNaN(stock)){
+		if(name || isNaN(id) || isNaN(price) || isNaN(stock)){
 			return {status: false, result: 'INVALID_DATA'};
 		}
 		this._authArticle.set(name, {
@@ -235,14 +235,12 @@ class APIModelAccess
 		return { status: true};
 	}
 
-	editArticle(username) /* pasar a la vista*/ 
+	editArticle(username, idToEdit, newPrice, newStock) 
 	{
 		if(!this.hasPermission(username,'editArticle')){
-			alert("No tenes permisos para agregar articulos");
-			return;
+			return{status: false, result: 'NO_PERMISSION'};
 		}
 
-		let idToEdit = Number(window.prompt("Ingrese el ID del articulo a editar:"));
 		let foundKey = null;
 
 		for(let [name, article] of this._authArticle){
@@ -252,26 +250,27 @@ class APIModelAccess
 			}
 		}
 
-		if(foundKey){
-			let newPrice = parseFloat(window.prompt("Ingrese nuevo precio: "));
-			let newStock = parseInt(window.prompt("Ingrese nuevo stock:"));
-
-			if(!isNaN(newPrice)) this._authArticle.get(foundKey).price = newPrice; 
-			if(!isNaN(newStock)) this._authArticle.get(foundKey).stock = newStock; 
-
-			alert("Articulo actualizado correctamente.");
-		}else{
-			alert("No se encontro un articulo con ese ID.");
+		if(!foundKey){
+			return{status: false, result: 'NOT_FOUND'};
 		}
+			
+		if(!isNaN(newPrice)){
+			this._authArticle.get(foundKey).price = newPrice;
+		} 
+
+		if(!isNaN(newStock)){
+			this._authArticle.get(foundKey).stock = newStock;
+		} 
+
+		return{status: true};
 	}
 
-	deleteArticle(username) /* pasar a la vista*/ 
+	deleteArticle(username, idToDelete) 
 	{
 		if(!this.hasPermission(username,'deleteArticle')){
-			alert("No tenes permisos para agregar articulos");
-			return;
+			return{status: false, result: 'NO_PERMISSION'};
 		}
-		let idToDelete = Number(window.prompt("Ingrese el ID del articulo a eliminar:"));
+		
 		let foundKey = null;
 
 		for(let [name, article] of this._authArticle){
@@ -281,21 +280,20 @@ class APIModelAccess
 			}
 		}
 
-		if(foundKey){
-			this._authArticle.delete(foundKey);
-			alert("Articulo eliminado correctamente.");
-		}else{
-			alert("No se encontro un articulo con ese ID.");
+		if(!foundKey){
+			return{status: false, result: 'NOT_FOUND'}
 		}
+
+		this._authArticle.delete(foundKey);
+		return{status: true};
 	}
 
-	buyArticle(username) /* pasar a la vista*/ 
+	buyArticle(username, idToBuy, quantity) 
 	{
 		if(!this.hasPermission(username,'buyArticle')){
-			alert("No tenes permisos para agregar articulos");
-			return;
+			return{status: false, result: 'NO_PERMISSION'};
 		}
-		let idToBuy = Number(window.prompt("Ingrese el ID del articulo a comprar:"));
+
 		let foundKey = null;
 		let foundArticle = null;
 
@@ -308,33 +306,29 @@ class APIModelAccess
 		}
 
 		if(!foundArticle){
-			alert("No se encontro un articulo con ese ID.");
-			return;
+			return{status: false, result: 'NOT_FOUND'};
 		}
 
 		if(foundArticle.stock <= 0)
 		{
-			alert("El articulo no tiene stock disponible");
-			return;
+			return{status: false, result: 'NO_STOCK'};
 		}
-
-		let quantity = Number(window.prompt("Ingrese la cantidad que desea comprar: "));
 
 		if(quantity > foundArticle.stock){
-			alert(`Stock insuficiente. Solo hay ${foundArticle.stock} unidades disponibles`);
-			return;
+			
+			return{status: false, result: 'INSUFFICIENT_STOCK', available: foundArticle.stock};
 		}
 
-		let confirmPurchase = window.confirm(
-			`Desea comprar ${quantity} unidades de "${foundKey}" por un total de $${(foundArticle.price * quantity).toFixed(2)}?`
-		);
-
-		if(confirmPurchase){
-			foundArticle.stock -= quantity;
-			alert(`Compra realizada con exito. Nuevo stock: ${foundArticle.stock}`);
-		}else{
-			alert("Compra cancelada.");
-		}
+		foundArticle.stock -= quantity;
+		return{
+			status: true,
+			result: {
+				name: foundKey,
+				price: foundArticle.price,
+				quantity: quantity,
+				remaining: foundArticle.stock
+			}
+		};
 	}
 }
 

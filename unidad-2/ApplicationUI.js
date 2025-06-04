@@ -180,23 +180,23 @@ class LoginApplicationView {
                         ArticleOptMap.set(optionNumber, () => { this.addArticle(username); });
                         optionNumber++;
                         articleText += `${optionNumber}. Editar articulo || `;
-                        ArticleOptMap.set(optionNumber, () => { this._api.editArticle(username); });
+                        ArticleOptMap.set(optionNumber, () => { this.modifyArticle(username); });
                         optionNumber++;
                         articleText += `${optionNumber}. Eliminar articulo || `;
-                        ArticleOptMap.set(optionNumber, () => { this._api.deleteArticle(username); });
+                        ArticleOptMap.set(optionNumber, () => { this.eliminateArticle(username); });
                         optionNumber++;
                         break;
                     
                     case "Vendedor":
                     case "Cliente":
                         articleText += `${optionNumber}. Comprar articulo || `;
-                        ArticleOptMap.set(optionNumber, () => { this._api.buyArticle(username); });
+                        ArticleOptMap.set(optionNumber, () => { this.affordArticle(username); });
                         optionNumber++;
                         break;
                     
                     case "Trabajador de deposito":
                         articleText += `${optionNumber}. Editar articulo || `;
-                        ArticleOptMap.set(optionNumber, () => { this._api.editArticle(username); });
+                        ArticleOptMap.set(optionNumber, () => { this.modifyArticle(username); });
                         optionNumber++;
                         break;
                 }
@@ -269,6 +269,115 @@ class LoginApplicationView {
         }else {
             alert("Articulo agregado correctamente.");
         }
+    }
+
+    modifyArticle(username){
+        const idToEdit = Number(window.prompt("Ingrese el ID del articulo a editar:"));
+
+        if(isNaN(idToEdit)){
+            alert("ID invalido.");
+            return;
+        }
+
+        const newPrice = parseFloat(window.prompt("Ingrese nuevo precio: "));
+        const newStock = parseInt(window.prompt("Ingrese nuevo stock:"));
+
+        const result = this._api.editArticle(username, idToEdit, newPrice, newStock);
+        
+        if(!result.status){
+            switch(result.result){
+                case 'NO_PERMISSION':
+                    alert("No tenes permisos para editar articulos.");
+                    break;
+                case 'NOT_FOUND':
+                    alert("No se encontro un articulo con ese ID.");
+                    break;
+                default:
+                    alert("Error desconocido.");
+            }
+        }else{
+            alert("Articulo actualizado correctamente.");
+        }
+    }
+
+    eliminateArticle(username){
+        const idToDelete = Number(window.prompt("Ingrese el ID del articulo a eliminar:"));
+
+        if(isNaN(idToDelete)){
+            alert("ID invalido.");
+            return;
+        }
+
+        const result = this._api.deleteArticle(username, idToDelete);
+
+        if(!result.status){
+            switch(result.result){
+                case 'NO_PERMISSION':
+                    alert("No tenes permiso para eliminar articulos.");
+                    break;
+                case 'NOT_FOUND':
+                    alert("No se encontro un articulo con ese ID.");
+                    break;
+                default:
+                    alert("Error desconocido.");
+            }
+        }else{
+            alert("Articulo eliminado correctamente.");
+        }
+    }
+
+    affordArticle(username){
+        
+        const idToBuy = Number(window.prompt("Ingrese el ID del articulo a comprar:"));
+        
+        if(isNaN(idToBuy)){
+            alert("ID invalido.");
+            return;
+        }
+
+        const quantity = Number(window.prompt("Ingrese la cantidad que desea comprar: "));
+
+        if(isNaN(quantity) || quantity <= 0){
+            alert("Cantidad invalida.");
+            return;
+        }
+
+        const result = this._api.buyArticle(username, idToBuy, quantity);
+
+        if(!result.status){
+            switch(result.result){
+                case 'NO_PERMISSION':
+                    alert("No tenes permisos para comprarr articulos");
+                    break;
+                case 'NOT_FOUND':
+                    alert("No se encontro un articulo con ese ID.");
+                    break;
+                case 'NO_STOCK':
+                    alert("El articulo no tiene stock disponible");
+                    break;
+                case 'INSUFFICIENT_STOCK':
+                    alert(`Stock insuficiente. Solo hay ${result.available} unidades disponibles`);
+                    break;
+                default:
+                    alert("Error desconocido.");
+            }
+        }else{
+            const data = result.result;
+            const confirmPurchase = window.confirm(
+			`Desea comprar ${data.quantity} unidades de "${data.name}" por un total de $${(data.price * data.quantity).toFixed(2)}?`
+		    );
+            if(confirmPurchase){
+                alert(`Compra realizada con exito. Nuevo stock: ${data.remaining}`);
+            }else{
+                alert("Compra cancelada.");
+            }
+        }
+        
+        
+        
+        
+        
+		
     }
 }
 
