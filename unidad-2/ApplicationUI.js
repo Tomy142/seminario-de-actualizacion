@@ -1,11 +1,29 @@
-class LoginApplicationView {
+class ApplicationView {
     constructor(apiInstanceObject) {
         this._api = apiInstanceObject;
     }
 
+    initializeView(){
+        while(true)
+		{
+			this._api_return = this.welcomeMenu();
+
+			if ( this._api_return.result == 'USER_PASSWORD_FAILED' )
+			{
+				this._attempts++;
+			}
+
+			if(this._api_return.status){
+				let keeprunning = true;
+				while(keeprunning){
+					keeprunning = this.userOptions(this._api_return.username, this._api_return.role);
+				}
+			}
+		}
+    }
     welcomeMenu() {
         const menuOpt = new Map();
-        menuOpt.set(1, () => this.show());
+        menuOpt.set(1, () => this.showLogin());
         
         let option = Number(window.prompt("1. Iniciar Sesion"));
         if (menuOpt.has(option)) {
@@ -16,7 +34,7 @@ class LoginApplicationView {
         }
     }
 
-    show() {
+    showLogin() {
         let username = window.prompt("Ingrese su nombre de usuario:");
         let password = window.prompt("Ingrese contraseña:");
         let role = window.prompt("Ingrese su rol exactamente como: Administrador, Vendedor, Cliente, Trabajador de deposito");
@@ -91,7 +109,7 @@ class LoginApplicationView {
 
     exitToMain() {
         alert("Saliendo...");
-        let exit = this.show();
+        let exit = this.showLogin();
         if (exit.status) {
             this.userOptions(exit.username, exit.role);
         }
@@ -347,7 +365,7 @@ class LoginApplicationView {
         if(!result.status){
             switch(result.result){
                 case 'NO_PERMISSION':
-                    alert("No tenes permisos para comprarr articulos");
+                    alert("No tenes permisos para comprar articulos");
                     break;
                 case 'NOT_FOUND':
                     alert("No se encontro un articulo con ese ID.");
@@ -381,4 +399,4 @@ class LoginApplicationView {
     }
 }
 
-export { LoginApplicationView };
+export { ApplicationView };
