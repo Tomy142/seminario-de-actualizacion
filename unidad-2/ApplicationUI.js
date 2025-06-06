@@ -37,16 +37,13 @@ class ApplicationView {
     showLogin() {
         let username = window.prompt("Ingrese su nombre de usuario:");
         let password = window.prompt("Ingrese contraseña:");
-        let role = window.prompt("Ingrese su rol exactamente como: Administrador, Vendedor, Cliente, Trabajador de deposito");
         
-        let api_return = this._api.authenticateUser(username, password, role);
+        let api_return = this._api.authenticateUser(username, password);
         
-        // Asignar el username y role al api_return
         api_return.username = username || '';
-        api_return.role = role || '';
         
         if (api_return.status) {
-            alert('Usuario autenticado exitosamente');
+            alert(`Usuario autenticado exitosamente. Rol: ${api_return.role}`);
         } else {
             switch (api_return.result) {
                 case 'BLOCKED_USER':
@@ -54,9 +51,6 @@ class ApplicationView {
                     break;
                 case 'USER_PASSWORD_FAILED':
                     alert('Usuario y/o contraseña incorrecta');
-                    break;
-                case 'ROLE_MISMATCH':
-                    alert('El rol no coincide con el usuario. Debe ser exactamente: Administrador, Vendedor, Cliente, o Trabajador de deposito');
                     break;
                 default:
                     alert('Error desconocido');
@@ -390,11 +384,6 @@ class ApplicationView {
                 alert("Compra cancelada.");
             }
         }
-        
-        
-        
-        
-        
 		
     }
 }

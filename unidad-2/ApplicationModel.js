@@ -89,17 +89,17 @@ class APIModelAccess
 		return this._authData.get(username);
 	}
 
-	authenticateUser( username, password, role )
+	authenticateUser( username, password)
 	{
 		let api_return = 
 		{
 			status: false,
-			result: null
+			result: null,
+			role: null
 		};
 
 		if((username != undefined && username != null && username != '') &&
-			(password != undefined && password != null && password != '') &&
-			['Administrador','Vendedor', 'Cliente', 'Trabajador de deposito'].includes(role)
+			(password != undefined && password != null && password != '')
 		)
 		{
 			let userdata = this.isValidUserGetData(username);
@@ -108,14 +108,8 @@ class APIModelAccess
 			{
 				if(userdata.password === password)
 				{
-					if(userdata.role !== role)
-					{
-						api_return.status = false;
-						api_return.result = 'ROLE_MISMATCH';
-						return api_return;
-					}
 					api_return.status = true;
-					api_return.role = role;
+					api_return.role = userdata.role;
 				}
 				else
 				{
@@ -149,9 +143,9 @@ class APIModelAccess
 
 	changePassword(userdata, newPassword) 
 	{
-			if(this.validUserPassword(newPassword))//back
+			if(this.validUserPassword(newPassword))
 			{
-				userdata.password = newPassword;// back
+				userdata.password = newPassword;
 				return{status: true};
 			}
 			return{status: false, result:'INVALID_PASSWORD'}
