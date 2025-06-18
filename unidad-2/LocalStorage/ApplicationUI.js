@@ -1,26 +1,73 @@
 class ApplicationView {
     constructor(apiInstanceObject) {
         this._api = apiInstanceObject;
+        this._attempts = 0;
     }
 
     initializeView(){
-        while(true)
-		{
-			this._api_return = this.welcomeMenu();
 
-			if ( this._api_return.result == 'USER_PASSWORD_FAILED' )
+        const loginResult = this.welcomeMenu();
+        console.log("sigo vivo")
+        if ( loginResult.result === 'USER_PASSWORD_FAILED' )
+		{
+            this._attempts++;
+            if(this._attempts >= this._api.getMaxLoginFailedAttempts())
+            {
+                alert('Demasiados intentos fallidos. Saliendo...');
+                return{status: false, result: 'MAX_ATTEMPTS_REACHED'};
+            }
+            
+            return this.initializeView();
+        }
+
+        if(loginResult.status){
+            this.handlerUserSession(loginResult.username, loginResult.role);
+            console.log("estoy vivo y logeado")
+            return {status: true, result: 'LOGIN_SUCCESS'};
+        }
+
+        return {status: false, result: 'NO_LOGIN'};
+        /*
+        let isRunnning = true;
+        while(isRunnning)
+		{
+			const loginResult = this.welcomeMenu();
+        
+            this._api_return = loginResult;
+
+			if ( loginResult.result === 'USER_PASSWORD_FAILED' )
 			{
 				this._attempts++;
+                if(this._attempts >= this._maxLoginFailedAttempts){
+                    alert('Demasiados intentos fallidos. Saliendo...');
+                    isRunnning = false;
+                    break;
+                }
 			}
 
-			if(this._api_return.status){
-				let keeprunning = true;
-				while(keeprunning){
-					keeprunning = this.userOptions(this._api_return.username, this._api_return.role);
-				}
-			}
-		}
+			if(loginResult.status){
+                this.handlerUserSession(loginResult.username, loginResult.role);
+                isRunnning = false;
+            }
+        }*/
     }
+
+    handlerUserSession(username, role){
+        /*let sessionActive = true;
+        while(sessionActive){
+            sessionActive= this.userOptions(username, role);
+        }*/
+
+        const shouldContinueRunning = this.userOptions(username, role);
+        if(!shouldContinueRunning){
+            localStorage.removeItem("username");
+            localStorage.removeItem("role");
+            alert("Sesion cerrada. Volviendo al menu principal.");
+            this._attempts = 0; //cierra sesion y resetea intentos
+            this.initializeView();
+        }
+    }
+
     welcomeMenu() {
         const menuOpt = new Map();
         menuOpt.set(1, () => this.showLogin());
@@ -64,10 +111,10 @@ class ApplicationView {
         return api_return;	
     }
 
-    userOptions() {
+    userOptions(username, role) {
 
-        const username = localStorage.getItem("username") || '';
-        const role = (localStorage.getItem("role") || '').trim();
+        /*const username = localStorage.getItem("username") || '';
+        const role = (localStorage.getItem("role") || '').trim();*/
 
         const optMap = new Map();
         let optNumber = 1;
@@ -75,37 +122,40 @@ class ApplicationView {
     
 
         // Opción 1: Cambiar contraseña (disponible para todos los roles)
-        optMap.set(optNumber, () => { this.passwordChanger(username); }); //tiene que redirigir a un change password UI
+        optMap.set(optNumber, () => { this.passwordChanger(); return true; }); //tiene que redirigir a un change password UI
         optionText += `${optNumber}. Cambiar contraseña || `;
         optNumber++;
 
         // Opción 2: Gestor de Artículos (disponible para todos los roles)
-        optMap.set(optNumber, () => { this.articleHandlerMenu(); });
+        optMap.set(optNumber, () => { this.articleHandlerMenu(); return true;});
         optionText += `${optNumber}. Gestor de Articulos || `;
         optNumber++;
 
         // Opción 3: Crear usuario (solo para Administrador)
         if (role === "Administrador") {
-            optMap.set(optNumber, () => { this.createUser(username); });
+            optMap.set(optNumber, () => { this.createUser(); return true; });
             optionText += `${optNumber}. Crear usuario || `;
             optNumber++;
         }
         
         // Opción X: Salir
-        optMap.set("x", () => { return 'EXIT_TO_MAIN' });
-        optMap.set("X", () => { return 'EXIT_TO_MAIN' });
+        optMap.set("x", () => { return false; });
+        optMap.set("X", () => { return false; });
         optionText += "X. Salir";
 
         let option = window.prompt(optionText);
         let parsedOpt = isNaN(option) ? option : Number(option);
         
         if (optMap.has(parsedOpt)) {
-            let result = optMap.get(parsedOpt)();
-            if (result === 'EXIT_TO_MAIN') return false;
+            let shouldContinue = optMap.get(parsedOpt)();
+            if (shouldContinue === false){
+                return false;
+            } 
+            return this.userOptions(username, role);
         } else {
             alert("Opcion invalida");
+            return this.userOptions(username, role);
         }
-        return true;
     }
 
     exitToMain() {
@@ -119,7 +169,7 @@ class ApplicationView {
         }
     }
 
-    passwordChanger(username)
+    passwordChanger()
     {
         const username = localStorage.getItem("username") || '';
         let userdata = this._api.isValidUserGetData(username);
@@ -157,6 +207,10 @@ class ApplicationView {
         const result = this._api.addUser(user, pass, role);
 
         if (result.status) {
+
+            localStorage.setItem("username", user);
+            localStorage.setItem("role", role);
+
             alert("Usuario creado correctamente.");
         } else {
             switch (result.result) {
@@ -176,7 +230,7 @@ class ApplicationView {
                     alert("Error desconocido.");
             }
         }
-        return { status: false, result: 'CREATED_OR_FAILED' };
+        return result;
     }
 
     articleHandlerMenu() {
@@ -187,58 +241,63 @@ class ApplicationView {
         const userdata = this._api.isValidUserGetData(username);
         if (userdata) {
             let ArticleOptMap = new Map();
-            let keepRunning = true;
+            
             const normalizedRole = (role || '').trim();
 
-            while (keepRunning) {
-                let articleText = "";
-                let optionNumber = 1;
-                ArticleOptMap.clear();
+            
+            let articleText = "";
+            let optionNumber = 1;
+            ArticleOptMap.clear();
 
-                // Listar artículos (disponible para todos los roles)
-                articleText += `${optionNumber}. Listar articulos || `;
-                ArticleOptMap.set(optionNumber, () => { this.listOfArticles(); });
-                optionNumber++;
+            // Listar artículos (disponible para todos los roles)
+            articleText += `${optionNumber}. Listar articulos || `;
+            ArticleOptMap.set(optionNumber, () => { this.listOfArticles(); return true; });
+            optionNumber++;
 
-                // Opciones específicas según el rol
-                switch (normalizedRole) {
-                    case "Administrador":
-                        articleText += `${optionNumber}. Nuevo articulo || `;
-                        ArticleOptMap.set(optionNumber, () => { this.addArticle(); });
-                        optionNumber++;
-                        articleText += `${optionNumber}. Editar articulo || `;
-                        ArticleOptMap.set(optionNumber, () => { this.modifyArticle(); });
-                        optionNumber++;
-                        articleText += `${optionNumber}. Eliminar articulo || `;
-                        ArticleOptMap.set(optionNumber, () => { this.eliminateArticle(); });
-                        optionNumber++;
-                        break;
-                    
-                    case "Vendedor":
-                    case "Cliente":
-                        articleText += `${optionNumber}. Comprar articulo || `;
-                        ArticleOptMap.set(optionNumber, () => { this.affordArticle(); });
-                        optionNumber++;
-                        break;
-                    
-                    case "Trabajador de deposito":
-                        articleText += `${optionNumber}. Editar articulo || `;
-                        ArticleOptMap.set(optionNumber, () => { this.modifyArticle(); });
-                        optionNumber++;
-                        break;
+            // Opciones específicas según el rol
+            switch (normalizedRole) {
+                case "Administrador":
+                    articleText += `${optionNumber}. Nuevo articulo || `;
+                    ArticleOptMap.set(optionNumber, () => { this.addArticle(); return true; });
+                    optionNumber++;
+                    articleText += `${optionNumber}. Editar articulo || `;
+                    ArticleOptMap.set(optionNumber, () => { this.modifyArticle(); return true; });
+                    optionNumber++;
+                    articleText += `${optionNumber}. Eliminar articulo || `;
+                    ArticleOptMap.set(optionNumber, () => { this.eliminateArticle(); return true; });
+                    optionNumber++;
+                    break;
+                
+                case "Vendedor":
+                case "Cliente":
+                    articleText += `${optionNumber}. Comprar articulo || `;
+                    ArticleOptMap.set(optionNumber, () => { this.affordArticle(); return true; });
+                    optionNumber++;
+                    break;
+                
+                case "Trabajador de deposito":
+                    articleText += `${optionNumber}. Editar articulo || `;
+                    ArticleOptMap.set(optionNumber, () => { this.modifyArticle(); return true; });
+                    optionNumber++;
+                    break;
+            }
+
+            articleText += `${optionNumber}. Salir`;
+            ArticleOptMap.set(optionNumber, () => { return false; });
+
+            let articleOpt = Number(window.prompt(articleText));
+            if (ArticleOptMap.has(Number(articleOpt))) {
+                let shouldContinue = ArticleOptMap.get(Number(articleOpt))();
+                if(shouldContinue === false){
+                    return false;
                 }
-
-                articleText += `${optionNumber}. Salir`;
-                ArticleOptMap.set(optionNumber, () => { keepRunning = false; });
-
-                let articleOpt = Number(window.prompt(articleText));
-                if (ArticleOptMap.has(Number(articleOpt))) {
-                    ArticleOptMap.get(Number(articleOpt))();
-                } else {
-                    alert("Opcion invalida");
-                }
+                return this.articleHandlerMenu();
+            } else {
+                alert("Opcion invalida");
+                return this.articleHandlerMenu();
             }
         }
+        return false;
     }
 
     listOfArticles(){

@@ -4,6 +4,7 @@ import { Application } from './Application.js';
 
 function main()
 {
+	console.log("main() function executed!");
 	let model = new APIModelAccess();
 	let app = new Application(model);
 
@@ -12,4 +13,4 @@ function main()
 
 }
 
-window.onload = main;
+main();

@@ -6,9 +6,52 @@ class APIModelAccess
 		this._authData = new Map();
 		this._authArticle = new Map();
 		this._maxLoginFailedAttempts = 3;
-		
-		let userData =
-		[
+
+		this.loadFromStorage();
+
+		console.log("Tamaño de _authData después de loadFromStorage:", this._authData.size);
+        console.log("Contenido de 'authData' en localStorage:", localStorage.getItem('authData'));
+        console.log("Contenido de 'authArticle' en localStorage:", localStorage.getItem('authArticle'));
+
+		if(this._authData.size === 0){
+			console.log("Inicializando datos por defecto y guardando...");
+			this.initializeDefaultData();
+			this.saveToStorage();
+		}else{
+			console.log("Datos cargados desde localStorage. No se inicializarán datos por defecto.");
+		}
+	}
+
+	loadFromStorage(){
+		const storedUsers = localStorage.getItem('authData');
+
+		if(storedUsers){
+			const users = JSON.parse(storedUsers);
+			for(const [username, data] of Object.entries(users)){
+				this._authData.set(username,data);
+			}
+		}
+
+		const storedArticles = localStorage.getItem('authArticle');
+
+		if(storedArticles){
+			const articles = JSON.parse(storedArticles);
+			for(const[name, data] of Object.entries(articles)){
+				this._authArticle.set(name,data);
+			}
+		}
+	}
+
+	saveToStorage(){
+		const users = Object.fromEntries(this._authData);
+		const articles = Object.fromEntries(this._authArticle);
+
+		localStorage.setItem('authData', JSON.stringify(users));
+		localStorage.setItem('authArticle', JSON.stringify(articles));
+	}
+
+	initializeDefaultData(){
+		const userData= [
 			{
 				password: '987654',
 				role: 'Administrador',
@@ -35,8 +78,7 @@ class APIModelAccess
 			}
 		]
 
-		let articleData=
-		[
+		const articleData=[
 			{
 				id: 1,
 				price:875.25,
@@ -63,6 +105,7 @@ class APIModelAccess
 		this._authArticle.set('Detergente x500mL',articleData[1]);
 		this._authArticle.set('Jabon en polvo x250g',articleData[2]);
 	}
+
 
 	get rolePermissions(){
 		return{
@@ -124,6 +167,7 @@ class APIModelAccess
 						api_return.status = false;
 						api_return.result = 'BLOCKED_USER';
 					}
+					this.saveToStorage();
 				}
 			}
 			else
@@ -146,12 +190,13 @@ class APIModelAccess
 			if(this.validUserPassword(newPassword))
 			{
 				userdata.password = newPassword;
+				this.saveToStorage();
 				return{status: true};
 			}
 			return{status: false, result:'INVALID_PASSWORD'}
 	}
 
-	validUserPassword(password) //mover?
+	validUserPassword(password) 
 	{
 		const characters = /^(?=.*[A-Z])(?=.*[a-z])(?=.*\d)(?=(?:.*[^a-zA-Z0-9]){2,})(?!.*\s).{8,16}$/;
 		return characters.test(password);
@@ -180,6 +225,7 @@ class APIModelAccess
 			isLocked: false
 		});
 
+		this.saveToStorage();
 		return{status: true};
 	}
 
@@ -218,7 +264,7 @@ class APIModelAccess
 			}
 		}
 
-		if(name || isNaN(id) || isNaN(price) || isNaN(stock)){
+		if(!name || isNaN(id) || isNaN(price) || isNaN(stock)){
 			return {status: false, result: 'INVALID_DATA'};
 		}
 		this._authArticle.set(name, {
@@ -226,6 +272,8 @@ class APIModelAccess
 			price: price,
 			stock: stock
 		});
+
+		this.saveToStorage();
 		return { status: true};
 	}
 
@@ -256,6 +304,7 @@ class APIModelAccess
 			this._authArticle.get(foundKey).stock = newStock;
 		} 
 
+		this.saveToStorage();
 		return{status: true};
 	}
 
@@ -279,6 +328,7 @@ class APIModelAccess
 		}
 
 		this._authArticle.delete(foundKey);
+		this.saveToStorage();
 		return{status: true};
 	}
 
@@ -314,6 +364,7 @@ class APIModelAccess
 		}
 
 		foundArticle.stock -= quantity;
+		this.saveToStorage();
 		return{
 			status: true,
 			result: {
