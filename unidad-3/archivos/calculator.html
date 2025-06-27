@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calculadora</title>
+</head>
+<body>
+    
+    <table>
+        <tr>
+            <td colspan="4">
+                <input type="text"></input>
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <button class="btn_N">7</button>
+            </td>
+            <td>
+                <button class="btn_N">8</button>
+            </td>
+            <td>
+                <button class="btn_N">9</button>
+            </td>
+            <td>
+                <button class="btn_A">+</button>
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <button class="btn_N">4</button>
+            </td>
+            <td>
+                <button class="btn_N">5</button>
+            </td>
+            <td>
+                <button class="btn_N">6</button>
+            </td>
+            <td>
+                <button class="btn_A">-</button>
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <button class="btn_N">3</button>
+            </td>
+            <td>
+                <button class="btn_N">2</button>
+            </td>
+            <td>
+                <button class="btn_N">1</button>
+            </td>
+            <td>
+                <button class="btn_A">*</button>
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <button class="btn_N">0</button>
+            </td>
+            <td>
+                <button class="btn_N">.</button>
+            </td>
+            <td>
+                <button class="btn_R">=</button>
+            </td>
+            <td>
+                <button class="btn_A">/</button>
+            </td>
+        </tr>
+
+        <tr>
+            <td colspan="4">
+                <button  class="btn_D">Borrar</button>
+            </td>
+        </tr>
+        
+    </table>
+    
+</body>
+
+<style>
+
+body{
+    background-color: gray;
+    display: flex;
+    justify-content: center;
+}
+
+table{
+    background-color: rgb(31, 31, 31);
+    margin-top:10%;
+    width: 400px;
+    height:400px;
+    padding: 10px 10px 10px 10px;
+    border-radius: 5%;
+}
+
+input{
+    
+    color: black;
+    font-family: Arial;
+    font-weight: bold;
+    font-size: 200%;
+    height: 60px;
+    width: 99%;
+    border-radius: 5px;
+    border-color: rgb(76, 83, 97);;
+    box-shadow: 2px rgb(76, 83, 97);
+}
+
+.btn_N{
+    color: white;
+    font-family: Arial;
+    font-weight: bold;
+    font-size: 100%;
+    background-color: rgb(0, 81, 255);
+    box-shadow: 0px 5px rgb(45, 112, 255);
+    width: 100%;
+    height: 40px;
+    border-radius: 6px;
+    border-color: rgb(45, 112, 255);
+}
+
+.btn_R{
+    color: white;
+    font-family: Arial;
+    font-weight: bold;
+    font-size: 100%;
+    background-color: rgb(221, 170, 31);
+    box-shadow: 0px 5px rgb(255, 227, 150);
+    width: 100%;
+    height: 40px;
+    border-radius: 6px;
+    border-color: rgb(255, 227, 150);
+}
+
+.btn_A{
+    color: white;
+    font-family: Arial;
+    font-weight:600;
+    font-size: 100%;
+    background-color: rgb(125, 192, 119);
+    box-shadow: 0px 5px rgb(148, 199, 143);
+    width: 100%;
+    height: 40px;
+    border-radius: 6px;
+    border-color: rgb(148, 199, 143);
+}
+
+
+.btn_D{
+    color: white;
+    font-family: Arial;
+    font-weight: bold;
+    font-size: 100%;
+    margin-left: 90px;
+
+    background-color: red;
+    box-shadow: 0px 5px #BB3E22;
+
+    width: 50%;
+    height: 40px;
+
+    border-radius: 6px;
+    border-color: #BB3E22;
+
+}
+</style>
+
+<script>
+
+const input = document.querySelector('input');
+const btnNumeros = document.querySelectorAll('.btn_N');
+const btnOperadores = document.querySelectorAll('.btn_A');
+const btnResultado = document.querySelector('.btn_R');
+const btnBorrar = document.querySelector('.btn_D');
+
+
+let expresion = '';
+
+
+btnNumeros.forEach(boton => {
+    boton.addEventListener('click', () => {
+        expresion += boton.textContent;
+        input.value = expresion;
+    });
+});
+
+
+btnOperadores.forEach(boton => {
+    boton.addEventListener('click', () => {
+        expresion += boton.textContent;
+        input.value = expresion;
+    });
+});
+
+
+btnResultado.addEventListener('click', () => {
+    try {
+        
+        const resultado = eval(expresion);
+        input.value = resultado;
+        expresion = resultado.toString(); 
+    } catch (error) {
+        input.value = 'Error';
+        expresion = '';
+    }
+});
+
+
+btnBorrar.addEventListener('click', () => {
+    expresion = '';
+    input.value = '';
+});
+</script>
+</html>

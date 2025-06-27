@@ -5,12 +5,14 @@ import { Application } from './Application.js';
 function main()
 {
 	console.log("main() function executed!");
-	let model = new APIModelAccess();
-	let app = new Application(model);
+	let model = null;
+	let app = null;
 
-	app.init();
-	app.run();
-
+	model = new APIModelAccess(function(){
+		app = new Application(model);
+		app.init();
+		app.run();
+	});
 }
 
 main();
