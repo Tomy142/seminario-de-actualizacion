@@ -1,9 +1,31 @@
-class CustomCalculator extends HTMLElement
+class CalculatorUI extends HTMLElement
 	{
 		constructor()
 		{
 			super();
 
+			const shadow = this.attachShadow({mode: 'open'});
+
+			const style = document.createElement('style');
+			style.textContent = `
+				body{
+					background-color: gray;
+					display: flex;
+					justify-content: center;
+				}
+				
+				input{
+					color: black;
+					font-family: Arial;
+					font-weight: bold;
+					font-size: 200%;
+					height: 60px;
+					width: 99%;
+					border-radius: 5px;
+					border-color: rgb(76, 83, 97);;
+					box-shadow: 2px rgb(76, 83, 97);
+				}
+			`
 			this.display = document.createElement('input');
 			this.btn1 = document.createElement('button');
 			this.btnPlus = document.createElement('button');
@@ -75,13 +97,7 @@ class CustomCalculator extends HTMLElement
 		}
 	}
 
-	customElements.define('x-calculator', CustomCalculator );
+	customElements.define('x-calculator', CalculatorUI );
 
+	export{CalculatorUI}
 	
-
-	function main()
-	{
-		document.body.appendChild( new CustomCalculator() );
-	}
-
-	window.onload = main;
