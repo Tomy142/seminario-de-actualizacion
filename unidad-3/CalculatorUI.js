@@ -1,3 +1,5 @@
+import { Table } from "./Components/Table.js";
+
 class CalculatorUI extends HTMLElement
 	{
 		constructor()
@@ -8,63 +10,43 @@ class CalculatorUI extends HTMLElement
 
 			const style = document.createElement('style');
 			style.textContent = `
-				body{
-					background-color: gray;
+				:host{
 					display: flex;
 					justify-content: center;
 				}
-				
-				input{
-					color: black;
-					font-family: Arial;
-					font-weight: bold;
-					font-size: 200%;
-					height: 60px;
-					width: 99%;
-					border-radius: 5px;
-					border-color: rgb(76, 83, 97);;
-					box-shadow: 2px rgb(76, 83, 97);
-				}
-			`
-			this.display = document.createElement('input');
-			this.btn1 = document.createElement('button');
-			this.btnPlus = document.createElement('button');
-			this.btnCalculate = document.createElement('button');
+			`;
+			shadow.appendChild(style);
 
-			this.display.type = 'text'; //<input type="text">
-			this.btn1.innerText = '1'; //<button>1</button>
-			this.btnPlus.innerText = '+'; //<button>+</button>
-			this.btnCalculate.innerText = '='; //<button>=</button>
+			this.table = new Table();
+			shadow.appendChild(this.table);
 		}
 
-		onButtonCalculateClick(event)
-		{
-			this.display.value = eval(this.display.value);
-		}
+		/*---Getters--- */
 
-		onButton1Click(event)
-		{
-			this.display.value += '1';
-		}
-
-		onButtonPlusClick(event)
-		{
-			this.display.value += '+';
-		}
+		get display(){return this.table.displayer;}
+		get btn0(){return this.table.btnNumber0;}
+		get btn1(){return this.table.btnNumber1;}
+		get btn2(){return this.table.btnNumber2;}
+		get btn3(){return this.table.btnNumber3;}
+		get btn4(){return this.table.btnNumber4;}
+		get btn5(){return this.table.btnNumber5;}
+		get btn6(){return this.table.btnNumber6;}
+		get btn7(){return this.table.btnNumber7;}
+		get btn8(){return this.table.btnNumber8;}
+		get btn9(){return this.table.btnNumber9;}
+		get btnDot(){return this.table.btnDot;}
+		get btnSub(){return this.table.btnSub;}
+		get btnPlus(){return this.table.btnPlus;}
+		get btnMultiply(){return this.table.btnMultiply;}
+		get btnDivide(){return this.table.btnDivide;}
+		get btnCalculate(){return this.table.btnEqual;}
+		get btnDelete(){return this.table.btnDelete;}
 
 		connectedCallback()
 		{
 			//Se va a ejecutar siempre cuando el elemento es insertado en el DOM
 			//DOM = Arbol de elementos HTML ya como instancias (objetos) de JS.
 
-			this.appendChild(this.display);
-			this.appendChild(this.btn1);
-			this.appendChild(this.btnPlus);
-			this.appendChild(this.btnCalculate);
-
-			this.btn1.onclick = this.onButton1Click.bind(this);
-			this.btnPlus.onclick = this.onButtonPlusClick.bind(this);
-			this.btnCalculate.onclick = this.onButtonCalculateClick.bind(this);
 		}
 
 		disconnectedCallback()
@@ -82,7 +64,7 @@ class CalculatorUI extends HTMLElement
 			//Se ejecuta cuando se mueve el elemento dentro del DOM
 		}
 
-		static get observableAttributes()
+		static get observedAttributes()
 		{
 			//Solo para publicar cuáles son los atributos que tendría disponible el webcomponent
 			//Si es utilizado a través de código HTML
