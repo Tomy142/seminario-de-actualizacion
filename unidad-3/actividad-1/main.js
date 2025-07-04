@@ -4,8 +4,10 @@ import { CalculatorController } from "./CalculatorController.js";
 function main()
 	{
 		let ui = new CalculatorUI();
+		let controller = new CalculatorController(ui);
+		ui.controller = controller;
 		document.body.appendChild(ui);
-		new CalculatorController(ui);
+		
 	}
 
 	window.onload = main;
