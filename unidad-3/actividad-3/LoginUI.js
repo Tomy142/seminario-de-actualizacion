@@ -1,6 +1,6 @@
-import { LoginController } from "./LoginController.js";
+import { CalculatorController } from "./CalculatorController.js";
 
-class LoginUI extends HTMLElement
+class CalculatorUI extends HTMLElement
 	{
 		constructor()
 		{
@@ -161,7 +161,7 @@ class LoginUI extends HTMLElement
 		}
 	}
 
-	customElements.define('x-login', LoginUI );
+	customElements.define('x-calculator', CalculatorUI );
 
-	export{LoginUI}
+	export{CalculatorUI}
 	
