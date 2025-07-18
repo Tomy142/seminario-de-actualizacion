@@ -31,6 +31,10 @@ class WCModalDialogUI extends HTMLElement{
         this.span = document.createElement('span');
         this.span.classList.add("w3-button", "w3-display-topright");
         this.span.innerHTML ="&times;";
+
+        this.acceptBtn = document.createElement('button');
+        this.acceptBtn.classList.add("w3-button", "w3-display-bottomleft", "w3-green");
+        this.acceptBtn.textContent= "Aceptar";
         
         this.paragraph00 = document.createElement('p');
         this.paragraph00.textContent ="Some text. Some text. Some text.";
@@ -39,6 +43,7 @@ class WCModalDialogUI extends HTMLElement{
         this.paragraph01.textContent ="Some text. Some text. Some text.";
 
         this.divModalContainer.appendChild(this.span);
+        this.divModalContainer.appendChild(this.acceptBtn);
         this.divModalContainer.appendChild(this.paragraph00);
         this.divModalContainer.appendChild(this.paragraph01);
 
@@ -61,12 +66,14 @@ class WCModalDialogUI extends HTMLElement{
         if(this.controller){
             this.button01.onclick = this.controller.onButtonOpenModalClick.bind(this.controller);
             this.span.onclick = this.controller.onButtonCloseClick.bind(this.controller);
+            this.acceptBtn.onclick = this.controller.onButtonCloseClick.bind(this.controller);
         }
     }
 
     disconnectedCallback(){
         this.button01.onclick = null;
         this.span.onclick = null;
+        this.acceptBtn.onclick = null;
     }
 }
 
