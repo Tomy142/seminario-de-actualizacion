@@ -1,17 +1,17 @@
 class WCModalDialogController{
     constructor(ui){
         this.ui = ui;
-        this.display = ui.display;
+        this.modal = ui.shadowRoot.querySelector('.w3-modal');
     }
 
     onButtonOpenModalClick(event)
     {
-        this.display;
+        this.modal.style.display ='block';
     }
 
     onButtonCloseClick(event)
     {
-
+        this.modal.style.display ='none';
     }
 }
 
