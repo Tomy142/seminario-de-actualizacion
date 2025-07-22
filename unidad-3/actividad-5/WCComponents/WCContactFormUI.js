@@ -7,21 +7,31 @@ class WCContactFormUI extends HTMLElement{
         this.controller = null;
         this.attachShadow({ mode: 'open'});
 
+        this.container = document.createElement('div');
+        this.container.classList.add("w3-container");
+
+        this.h2MainTitle = document.createElement('h2');
+        this.h2MainTitle.textContent ="W3.CSS Modal";
+        
+        this.button00 = document.createElement('button');
+        this.button00.classList.add("w3-button", "w3-center", "w3-blue");
+        this.button00.textContent ="Contact Us";
+
         const link00 = document.createElement('link');
         link00.rel = 'stylesheet';
         link00.href = 'https://www.w3schools.com/w3css/5/w3.css';
 
         const link01 = document.createElement('link');
         link01.rel = 'stylesheet';
-        link01.href = 'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css';
+        link01.href = 'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css';
+
+        this.shadowRoot.append(link00,link01);
 
         this.form = document.createElement('form');
-        this.form.action = "/action_page.php";
+        /*this.form.action = "/action_page.php";*/
         this.form.classList.add("w3-container", "w3-card-4", "w3-light-grey", "w3-text-blue", "w3-margin");
+        this.form.style.display = "none";
 
-        this.h2Title = document.createElement('h2');
-        this.h2Title.classList.add("w3-center");
-        this.h2Title.textContent ="Contact Us";
 
         this.createInputBlock = function(iconClass, name, placeholder){
             let block = document.createElement('div');
@@ -32,7 +42,7 @@ class WCContactFormUI extends HTMLElement{
             iconCol.style.width = "50px";
 
             let icon = document.createElement('i');
-            icon.className = "w3-xxlarge " + iconClass;
+            icon.className = `fa-solid ${iconClass} w3-xxlarge `;
             iconCol.appendChild(icon);
 
             let inputContainer = document.createElement('div');
@@ -50,45 +60,52 @@ class WCContactFormUI extends HTMLElement{
             return block;
         }.bind(this);
 
-        this.firstNameBlock = this.createInputBlock("fa fa-user", "first","First Name");
-        this.lastNameBlock = this.createInputBlock("fa fa-user", "last","Last Name");
-        this.emailBlock = this.createInputBlock("fa fa-envelope-o", "email","Email");
-        this.phoneBlock = this.createInputBlock("fa fa-phone", "phone", "Phone");
-        this.messageBlock = this.createInputBlock("fa fa-pencil", "message", "Message");
+        this.firstNameBlock = this.createInputBlock("fa-user", "first","First Name");
+        this.lastNameBlock = this.createInputBlock("fa-user", "last","Last Name");
+        this.emailBlock = this.createInputBlock("fa-envelope", "email","Email");
+        this.phoneBlock = this.createInputBlock("fa-phone", "phone", "Phone");
+        this.messageBlock = this.createInputBlock("fa-pen", "message", "Message");
 
         this.paragraph00 = document.createElement('p');
         this.paragraph00.classList.add("w3-center");
 
-        this.button00 = document.createElement('button');
-        this.button00.classList.add("w3-button", "w3-section", "w3-blue", "w3-ripple");
-        this.button00.textContent = "Send";
+        this.button01 = document.createElement('button');
+        this.button01.classList.add("w3-button", "w3-section", "w3-blue", "w3-ripple");
+        this.button01.textContent = "Send";
 
-        this.form.appendChild(this.h2Title);
+        this.span = document.createElement('span');
+        this.span.classList.add("w3-button", "w3-display-topright");
+        this.span.innerHTML ="&times;";
+
+        this.form.appendChild(this.span);
         this.form.appendChild(this.firstNameBlock);
         this.form.appendChild(this.lastNameBlock);
         this.form.appendChild(this.emailBlock);
         this.form.appendChild(this.phoneBlock);
         this.form.appendChild(this.messageBlock);
         this.form.appendChild(this.paragraph00);
-        this.paragraph00.appendChild(this.button00);
+        this.paragraph00.appendChild(this.button01);
 
-        const styles = document.createElement('link');
-        styles.rel = 'stylesheet';
-        styles.href = 'https://www.w3schools.com/w3css/5/w3.css'
+        this.container.appendChild(this.h2MainTitle);
+        this.container.appendChild(this.button00);
+        this.container.appendChild(this.form);
 
-        this.shadowRoot.append(link00,link01,this.form);
+        
+        this.shadowRoot.append(this.container);
     }
 
     connectedCallback(){
         if(this.controller){
-            this.button00.onclick = this.controller.onButtonOpenModalClick.bind(this.controller);
+            this.button00.onclick = this.controller.onButtonOpenFormClick.bind(this.controller);
+            this.span.onclick = this.controller.onButtonCloseClick.bind(this.controller);
+            this.button01.onclick = this.controller.onButtonSubmitFormClick.bind(this.controller);
         }
     }
 
     disconnectedCallback(){
+        this.button00.onclick = null;
         this.button01.onclick = null;
         this.span.onclick = null;
-        this.acceptBtn.onclick = null;
     }
 }
 
