@@ -1,17 +1,17 @@
 class WCContactFormController{
     constructor(ui){
         this.ui = ui;
-        this.modal = ui.shadowRoot.querySelector('.w3-modal');
+        this.modal = null;
     }
 
     onButtonOpenModalClick(event)
     {
-        this.modal.style.display ='block';
+        window.alert("Su consulta fue recibida. A la brevedad lo contactaremos. Gracias");
     }
 
     onButtonCloseClick(event)
     {
-        this.modal.style.display ='none';
+        
     }
 }
 

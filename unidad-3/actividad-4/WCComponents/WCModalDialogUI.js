@@ -33,12 +33,12 @@ class WCModalDialogUI extends HTMLElement{
         this.span.innerHTML ="&times;";
 
         this.acceptBtn = document.createElement('button');
-        this.acceptBtn.classList.add("w3-button", "w3-display-bottomleft", "w3-green");
+        this.acceptBtn.classList.add("w3-button", "w3-display-bottomright", "w3-green");
         this.acceptBtn.textContent= "Aceptar";
         
         this.paragraph00 = document.createElement('p');
         this.paragraph00.textContent ="Some text. Some text. Some text.";
-
+        
         this.paragraph01 = document.createElement('p');
         this.paragraph01.textContent ="Some text. Some text. Some text.";
 
