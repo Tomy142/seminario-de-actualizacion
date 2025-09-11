@@ -49,7 +49,9 @@ class TableWC extends HTMLElement{
     formatHeader(header){
         return header
             .replace(/([A-Z])/g, ' $1')
-            .replace(/^./, str => str.toUpperCase())
+            .replace(/^./, function(str){
+                return str.toUpperCase();
+            })
             .trim();
     }
 
@@ -61,7 +63,7 @@ class TableWC extends HTMLElement{
     }
 
     loadData(data){
-        this.table.textContent = '';
+        this.clearTable();
         
         let thead = document.createElement('thead');
         let headerRow = document.createElement('tr');
@@ -69,33 +71,43 @@ class TableWC extends HTMLElement{
         //Obtener key del primer objeto
         let columns = Object.keys(data[0]);
 
-        columns.forEach(column =>{
+        for(let i = 0; i < columns.length; i++){
+            let column = columns[i];
             let th = document.createElement('th');
             th.textContent = this.formatHeader(column);
             headerRow.appendChild(th);
-        });
+        }
 
         thead.appendChild(headerRow);
         this.table.appendChild(thead);
 
         let tbody = document.createElement('tbody');
 
-        data.forEach(item=>{
+        for(let j = 0; j < data.length; j++){
+            let item = data[j];
             let row = document.createElement('tr');
-            columns.forEach(column=>{
+
+            for(let k = 0; k < columns.length; k++){
+                let columnName = columns[k];
                 let td = document.createElement('td');
-                td.textContent = this.formatCellContent(item[column]);
+                td.textContent = this.formatCellContent(item[columnName]);
                 row.appendChild(td);
-            });
+            }
 
             tbody.appendChild(row);
-        });
+        }
 
         this.table.appendChild(tbody);
     }
+    
+    clearTable(){
+        while(this.table.firstChild){
+            this.table.removeChild(this.table.firstChild);
+        }
+    }
 
     clear(){
-        this.table.textContent = '';
+        this.clearTable();
     }
 }
 

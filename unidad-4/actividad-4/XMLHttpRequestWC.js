@@ -60,6 +60,11 @@ class XMLHttpRequestExample extends HTMLElement{
         shadow.appendChild(w3csslink01);
         shadow.appendChild(style);
         shadow.appendChild(this.container);
+
+        this.onClearButtonClick = this.onClearButtonClick.bind(this);
+        this.onRequestButtonClick = this.onRequestButtonClick.bind(this);
+        this.handlerXhrLoad = this.handlerXhrLoad.bind(this);
+        this.handlerXhrError = this.handlerXhrError.bind(this); 
     }
 
     onClearButtonClick(event){
@@ -68,20 +73,15 @@ class XMLHttpRequestExample extends HTMLElement{
 
     onRequestButtonClick(event){
         const xhr = new XMLHttpRequest();
+        let self = this;
 
-        xhr.onload = (event) =>{
-            if(xhr.readyState === 4 && xhr.status === 200){
-                const data = JSON.parse(xhr.responseText);
-                this.tableElement.loadData(data);
-            }else{
-                console.error(xhr.statusText);
-            }
-            setTimeout(()=>{this.requestBtn.disabled = false}, 2000);
-        }
+        xhr.onload = function(event){
 
-        xhr.onerror = (event) =>{
-            console.error(xhr.statusText);
-            this.requestBtn.disabled = false;
+            self.handlerXhrLoad(xhr);
+        };
+
+        xhr.onerror = function (event){
+            self.handlerXhrError(xhr);
         };
 
         xhr.open('GET', 'https://jsonplaceholder.typicode.com/users/');
@@ -89,6 +89,22 @@ class XMLHttpRequestExample extends HTMLElement{
         this.requestBtn.disabled = true;
     }
 
+    handlerXhrLoad(xhr){
+        if(xhr.readyState === 4 && xhr.status === 200){
+                const data = JSON.parse(xhr.responseText);
+                this.tableElement.loadData(data);
+            }else{
+                console.error(xhr.statusText);
+            }
+            const self = this;
+
+            setTimeout(function(){self.requestBtn.disabled = false}, 2000);
+    }
+
+    handlerXhrError(xhr){
+        console.error(xhr.statusText);
+        this.requestBtn.disabled = false;
+    }
     connectedCallback(){
         this.requestBtn.onclick = this.onRequestButtonClick.bind(this);
         this.clearBtn.onclick = this.onClearButtonClick.bind(this);

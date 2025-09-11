@@ -49,7 +49,7 @@ class TableWC extends HTMLElement{
     }
 
     loadData(data){
-        this.table.textContent = '';
+        this.clearTable();
         
         if(!data || data.length === 0){
             this.showNoData();
@@ -62,18 +62,20 @@ class TableWC extends HTMLElement{
 
         const customHeaders=['ID', 'Usuario', 'Nombre', 'Correo', 'Web', 'Celular'];
 
-        customHeaders.forEach(headerText=>{
+        for(let i = 0 ; i < customHeaders.length; i++){
             let th = document.createElement('th');
-            th.textContent = headerText;
+            th.textContent = customHeaders[i];
             headerRow.appendChild(th);
-        });
+        }
 
         thead.appendChild(headerRow);
         this.table.appendChild(thead);
 
         let tbody = document.createElement('tbody');
 
-        data.forEach(user =>{
+        for(let j = 0; j < data.length; j++){
+
+            let user = data[j];
             let row = document.createElement('tr');
 
             let tdId = document.createElement('td');
@@ -109,10 +111,17 @@ class TableWC extends HTMLElement{
             row.appendChild(tdPhone);
 
             tbody.appendChild(row);
-        });
+        }
 
         this.table.appendChild(tbody);
     }
+
+    clearTable(){
+        while(this.table.firstChild){
+            this.table.removeChild(this.table.firstChild);
+        }
+    }
+
 
     showNoData(){
         const row = document.createElement('tr');
@@ -127,7 +136,7 @@ class TableWC extends HTMLElement{
     }
 
     clear(){
-        this.table.textContent = '';
+        this.clearTable();
         this.showNoData();
     }
 }

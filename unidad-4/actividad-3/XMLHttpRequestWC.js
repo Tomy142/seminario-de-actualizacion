@@ -2,6 +2,7 @@ import { TableWC } from "./TableWC.js";
 class XMLHttpRequestExample extends HTMLElement{
     constructor(){
         super();
+        
         const shadow = this.attachShadow({mode: 'open'});
         
         const style = document.createElement('style');
@@ -46,6 +47,11 @@ class XMLHttpRequestExample extends HTMLElement{
         
         shadow.appendChild(style);
         shadow.appendChild(this.container);
+
+        this.onClearButtonClick = this.onClearButtonClick.bind(this);
+        this.onRequestButtonClick = this.onRequestButtonClick.bind(this);
+        this.handlerXhrLoad = this.handlerXhrLoad.bind(this);
+        this.handlerXhrError = this.handlerXhrError.bind(this);
     }
 
     onClearButtonClick(event){
@@ -53,19 +59,15 @@ class XMLHttpRequestExample extends HTMLElement{
     }
 
     onRequestButtonClick(event){
+        const self = this;
         const xhr = new XMLHttpRequest();
 
-        xhr.onload = (event) =>{
-            if(xhr.readyState === 4 && xhr.status === 200){
-                const data = JSON.parse(xhr.responseText);
-                this.tableElement.loadData(data);
-            }else{
-                console.error(xhr.statusText);
-            }
-            setTimeout(()=>{this.requestBtn.disabled = false}, 2000);
-        }
+        xhr.onload = function(event){
+            self.handlerXhrLoad.call(self, xhr);
+        };
 
-        xhr.onerror = (event) =>{
+        xhr.onerror = function (event){
+            self.handlerXhrError.call(self, xhr);
             console.error(xhr.statusText);
             this.requestBtn.disabled = false;
         };
@@ -75,9 +77,23 @@ class XMLHttpRequestExample extends HTMLElement{
         this.requestBtn.disabled = true;
     }
 
+    handlerXhrLoad(xhr){
+        if(xhr.readyState === 4 && xhr.status === 200){
+            const data = JSON.parse(xhr.responseText);
+            this.tableElement.loadData(data);
+        }else{
+            console.error(xhr.statusText);
+        }
+        setTimeout(()=>{this.requestBtn.disabled = false}, 2000);
+    }
+
+    handlerXhrError(xhr){
+        this.requestBtn.disabled = false;
+    }
+
     connectedCallback(){
-        this.requestBtn.onclick = this.onRequestButtonClick.bind(this);
-        this.clearBtn.onclick = this.onClearButtonClick.bind(this);
+        this.requestBtn.addEventListener('click', this.onRequestButtonClick);
+        this.clearBtn.addEventListener('click', this.onClearButtonClick);
     }
 
     disconnectedCallback(){
