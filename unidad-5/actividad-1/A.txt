@@ -1,0 +1,190 @@
+ struct User{
+    int id;
+    string name;
+    string email;
+ }
+
+ class IUserService
+ {
+    public:
+        virtual ~IUserService()default;
+
+        virtual vector<User> GetAllUsers() const = 0;
+        virtual User GetUserById(int id) const = 0;
+        virtual int CreateUser(const User& user) = 0;
+        virtual bool UpdateUser(int id, const User& user)= 0;
+        virtual bool DeleteUser(int id)= 0;
+ }
+
+=============================================================================
+/////////////////////////////////////////////////////////////////////////////
+=============================================================================
+ Obtener todos los usuarios
+    •Endpoint
+         "/IUserService/GetAllUsers"
+    •Método HTTP
+        GET 
+    •Formato de serialización de intercambio
+        JSON 
+    •Cabeceras de entrada
+        -----------
+    •Cabeceras de salida
+        ----------- 
+    •Estructura de datos de entrada del endpoint
+        ----------- 
+    •Estructura de datos de salida del endpoint (Caso satisfactorio) 
+        [
+            {
+                "id": 1,
+                "name": "Tomás",
+                "email": "ejemplo@ejemplo.com"
+            }
+        ]
+
+    •Estructura de datos de salida del endpoint (Caso no-satisfactorio)
+        {
+            "status": "error",
+            "description": "Error..."
+        }  
+ 
+
+!--------------------------------------------------------------------------!
+!--------------------------------------------------------------------------!
+
+
+Obtener usuario por ID    
+    •Endpoint
+        "/IUserService/GetUserById"
+    •Método HTTP
+        GET
+    •Formato de serialización de intercambio
+        JSON
+        
+    •Cabeceras de entrada
+        -----------
+    •Cabeceras de salida
+        -----------    
+    •Estructura de datos de entrada del endpoint
+        {
+            "id":1
+        }
+    •Estructura de datos de salida del endpoint (Caso satisfactorio)
+        {
+            "id": 1,
+            "name": "Tomás",
+            "email": "ejemplo@ejemplo.com"
+        }
+    •Estructura de datos de salida del endpoint (Caso no-satisfactorio)
+        {
+            "type": "error",
+            "description": "User not found"
+        }
+
+
+
+!--------------------------------------------------------------------------!
+!--------------------------------------------------------------------------!
+
+
+ Crear Usuario   
+    •Endpoint 
+        "/IUserService/CreateUser"
+    •Método HTTP 
+        POST
+    •Formato de serialización de intercambio 
+        JSON
+    •Cabeceras de entrada
+        -----------
+    •Cabeceras de salida
+        -----------
+    •Estructura de datos de entrada del endpoint 
+        [
+            {
+                "id": 1,
+                "name": "Tomás",
+                "email": "ejemplo@ejemplo.com"
+            }
+        ]
+
+    •Estructura de datos de salida del endpoint (Caso satisfactorio)
+        {
+            "status": "success",
+            "data":{
+                "id": 1,
+                "name": "Tomás",
+                "email": "ejemplo@ejemplo.com"  
+            },
+            "message": "Usuario creado correctamente"
+        } 
+    •Estructura de datos de salida del endpoint (Caso no-satisfactorio)
+        {
+            "status": "error",
+            "description": "Error..."
+        } 
+
+!--------------------------------------------------------------------------!
+!--------------------------------------------------------------------------!
+
+ Actualizar Usuario  
+    •Endpoint 
+        "/IUserService/UpdateUser"
+    •Método HTTP 
+        PUT
+    •Formato de serialización de intercambio 
+        JSON
+    •Cabeceras de entrada
+        -----------
+    •Cabeceras de salida
+        -----------
+    •Estructura de datos de entrada del endpoint 
+        {
+            "id": 1,
+            "user": 
+            {
+                "name": "Tomás",
+                "email": "nuevo@ejemplo.com"
+            }
+        }
+
+    •Estructura de datos de salida del endpoint (Caso satisfactorio)
+        {
+            "type": "success",
+            "description": "User updated successfully"
+        }
+    •Estructura de datos de salida del endpoint (Caso no-satisfactorio)
+        {
+            "type": "error",
+            "description": "User not found or update failed"
+        }
+
+!--------------------------------------------------------------------------!
+!--------------------------------------------------------------------------!
+
+    Eliminar Usuario  
+    •Endpoint 
+        "/IUserService/DeleteUser"
+    •Método HTTP 
+        DELETE
+    •Formato de serialización de intercambio 
+        JSON
+    •Cabeceras de entrada
+        -----------
+    •Cabeceras de salida
+        -----------
+    •Estructura de datos de entrada del endpoint 
+        {
+            "id": 1
+        }
+
+    •Estructura de datos de salida del endpoint (Caso satisfactorio)
+        {
+            "type": "success",
+            "description": "User deleted successfully"
+        }
+    •Estructura de datos de salida del endpoint (Caso no-satisfactorio)
+        {
+            "type": "error",
+            "description": "User not found "
+        }
+!--------------------------------------------------------------------------!
+!--------------------------------------------------------------------------!

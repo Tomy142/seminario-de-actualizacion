@@ -1,0 +1,105 @@
+class IAnalyticsService
+{
+    public: 
+        virtual ~IAnalyticsService() = default;
+
+        virtual void TrackEvent(const string& eventName, const map<string, string>& properties) = 0 ;
+        virtual int GetEventCount(const string& eventName) const = 0;
+        virtual map<string, int> GetTopEvents(int limit) const = 0;
+};
+=============================================================================
+/////////////////////////////////////////////////////////////////////////////
+=============================================================================
+Registrar un Evento
+    •Endpoint:
+        /IAnalyticsService/TrackEvent 
+    •Método HTTP:
+        POST 
+    •Formato de serialización de intercambio:
+        JSON 
+    •Cabeceras de entrada: 
+        -------
+    •Cabeceras de salida:
+        ------- 
+    •Estructura de datos de entrada del endpoint:
+        {
+            "eventName": "UserLogin",
+            "properties": {
+                "userId": "123",
+                "loginMethod": "email"
+            }
+        } 
+    • Estructura de datos de salida del endpoint (Caso satisfactorio):
+        {
+            "type": "success",
+            "description": "Event tracked successfully"
+        } 
+    •Estructura de datos de salida del endpoint (Caso no-satisfactorio):
+        {
+            "type": "error",
+            "description": "Invalid event data provided"
+        }
+
+!--------------------------------------------------------------------------!
+!--------------------------------------------------------------------------!
+
+Obtener conteo de un evento
+    •Endpoint:
+        /IAnalyticsService/TrackEvent 
+    •Método HTTP:
+        GET
+    •Formato de serialización de intercambio:
+        JSON 
+    •Cabeceras de entrada: 
+        -------
+    •Cabeceras de salida:
+        ------- 
+    •Estructura de datos de entrada del endpoint:
+        {
+            "eventName": "UserLogin"
+        } 
+    • Estructura de datos de salida del endpoint (Caso satisfactorio):
+        {
+            "eventName": "UserLogin",
+            "count": 452
+        } 
+    •Estructura de datos de salida del endpoint (Caso no-satisfactorio):
+        {
+            "type": "error",
+            "description": "Event name not found"
+        }
+
+!--------------------------------------------------------------------------!
+!--------------------------------------------------------------------------!
+
+Obtener top de eventos
+    •Endpoint:
+        /IAnalyticsService/GetTopEvents 
+    •Método HTTP:
+        GET
+    •Formato de serialización de intercambio:
+        JSON 
+    •Cabeceras de entrada: 
+        -------
+    •Cabeceras de salida:
+        ------- 
+    •Estructura de datos de entrada del endpoint:
+        {
+            "limit": 5
+        } 
+    • Estructura de datos de salida del endpoint (Caso satisfactorio):
+        {
+            "UserLogin": 452,
+            "AddToCart": 310,
+            "PurchaseCompleted": 150,
+            "ViewProduct": 890,
+            "UserLogout": 448
+        } 
+    •Estructura de datos de salida del endpoint (Caso no-satisfactorio):
+        {
+            "type": "error",
+            "description": "No events available to generate a report"
+        }
+
+!--------------------------------------------------------------------------!
+!--------------------------------------------------------------------------!

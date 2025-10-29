@@ -1,0 +1,145 @@
+class StorageException : public runtime_error{
+    public:
+        explicit StorageException(const string& msg) runtime_error(msg){}        
+};
+
+//Excepciones especificas
+
+class FileNotFoundException : public StorageException{
+    public:
+        explicit FileNotFoundException(const string& path) : StorageException("Archivo no encontrado": + path)
+};
+
+class PermissionDeniedException : public StorageException{
+    public:
+        explicit PermissionDeniedException(const string& path): StorageException("Permiso denegado para:" +path )
+};
+
+class IFileStorage{
+    public:
+        virtual ~IFileStorage() = default;
+
+        virtual vector<string> ListFiles(const string& directory) const = 0;
+        virtual string ReadFile(const string& path) const = 0;
+        virtual void WriteFile(const string& path, const string& content) = 0;
+        virtual void DeleteFile(const string& path) = 0;
+};
+=============================================================================
+/////////////////////////////////////////////////////////////////////////////
+=============================================================================
+Listar archivos de un directorio
+    •Endpoint:
+        /IFileStorage/ListFiles
+    •Método HTTP:
+        GET
+    •Formato de serialización de intercambio:
+        JSON 
+    •Cabeceras de entrada: 
+        -------
+    •Cabeceras de salida:
+        ------- 
+    •Estructura de datos de entrada del endpoint:
+        {
+            "directory": "/home/user/documents"
+        } 
+    • Estructura de datos de salida del endpoint (Caso satisfactorio):
+       [
+            "report.pdf",
+            "notes.txt",
+            "image.png"
+       ]
+    •Estructura de datos de salida del endpoint (Caso no-satisfactorio):
+        {
+            "type": "error",
+            "description": "Directory not found: /home/user/documents"
+        }
+
+!--------------------------------------------------------------------------!
+!--------------------------------------------------------------------------!
+
+Leer archivo
+    •Endpoint:
+        /IFileStorage/ReadFile
+    •Método HTTP:
+        GET
+    •Formato de serialización de intercambio:
+        JSON 
+    •Cabeceras de entrada: 
+        -------
+    •Cabeceras de salida:
+        ------- 
+    •Estructura de datos de entrada del endpoint:
+        {
+            "path": "/home/user/documents/notes.txt"
+        } 
+    • Estructura de datos de salida del endpoint (Caso satisfactorio):
+      {
+        "content": "Este es el contenido del archivo de notas."
+      }
+    •Estructura de datos de salida del endpoint (Caso no-satisfactorio):
+        {
+            "type": "error",
+            "description": "Permission denied for: /home/user/documents/notes.txt"
+        }
+
+!--------------------------------------------------------------------------!
+!--------------------------------------------------------------------------!
+
+Escribir archivo
+    •Endpoint:
+        /IFileStorage/WriteFile
+    •Método HTTP:
+        PUT
+    •Formato de serialización de intercambio:
+        JSON 
+    •Cabeceras de entrada: 
+        -------
+    •Cabeceras de salida:
+        ------- 
+    •Estructura de datos de entrada del endpoint:
+        {
+            "path": "/home/user/documents/new_file.txt",
+            "content": "Contenido para el nuevo archivo."
+        } 
+    • Estructura de datos de salida del endpoint (Caso satisfactorio):
+      {
+        "type": "success",
+        "description": "File written successfully"
+      }
+    •Estructura de datos de salida del endpoint (Caso no-satisfactorio):
+        {
+            "type": "error",
+            "description": "Permission denied for: /home/user/documents/new_file.txt"
+        }
+
+!--------------------------------------------------------------------------!
+!--------------------------------------------------------------------------!
+
+Eliminar archivo
+    •Endpoint:
+        /IFileStorage/DeleteFile
+    •Método HTTP:
+        DELETE
+    •Formato de serialización de intercambio:
+        JSON 
+    •Cabeceras de entrada: 
+        -------
+    •Cabeceras de salida:
+        ------- 
+    •Estructura de datos de entrada del endpoint:
+        {
+            "path": "/home/user/documents/report.pdf"
+        } 
+    • Estructura de datos de salida del endpoint (Caso satisfactorio):
+      {
+        "type": "success",
+        "description": "File deleted successfully"
+      }
+    •Estructura de datos de salida del endpoint (Caso no-satisfactorio):
+        {
+            "type": "error",
+            "description": "File not found: /home/user/documents/report.pdf"
+        }
+
+!--------------------------------------------------------------------------!
+!--------------------------------------------------------------------------!

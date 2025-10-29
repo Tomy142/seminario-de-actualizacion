@@ -1,0 +1,126 @@
+struct Product
+{
+    int id;
+    string name;
+    double price;
+};
+
+class IProductCatalog
+{
+    public:
+        virtual ~IProductCatalog() = default;
+
+        virtual vector<Product> SearchProducts(const string& keyword) const = 0;
+        virtual Product GetProductById(int id) const = 0;
+        virtual bool UpdateStock(int productId, int newStock)= 0;
+};
+
+
+=============================================================================
+/////////////////////////////////////////////////////////////////////////////
+=============================================================================
+
+Buscar productos por palabra clave
+    •Endpoint
+        /IProductCatalog/SearchProducts
+    •Método HTTP
+        GET
+
+    •Formato de serialización de intercambio
+        JSON
+    •Cabeceras de entrada
+        ----------
+    •Cabeceras de salida
+        ----------
+    •Estructura de datos de entrada del endpoint
+        {
+            "keyword": "laptop"
+        }
+
+    •Estructura de datos de salida del endpoint (Caso satisfactorio)
+        [
+            {
+                "id": 101,
+                "name": "Laptop Pro",
+                "price": 1200.50
+            },
+            {
+                "id": 102,
+                "name": "Gaming Laptop",
+                "price": 1550.00
+            }
+        ]
+
+    •Estructura de datos de salida del endpoint (Caso no-satisfactorio)
+        {
+            "type": "error",
+            "description": "No products found matching the keyword"
+        }
+
+!--------------------------------------------------------------------------!
+!--------------------------------------------------------------------------!
+
+Obtener productos por id
+    •Endpoint
+        /IProductCatalog/GetProductById
+    •Método HTTP
+        GET
+    •Formato de serialización de intercambio
+        JSON
+    •Cabeceras de entrada
+        ----------
+    •Cabeceras de salida
+        ----------
+    •Estructura de datos de entrada del endpoint
+        {
+            "id": 101
+        }
+
+    •Estructura de datos de salida del endpoint (Caso satisfactorio)
+        [
+            {
+                "id": 101,
+                "name": "Laptop Pro",
+                "price": 1200.50
+            }
+        ]
+
+    •Estructura de datos de salida del endpoint (Caso no-satisfactorio)
+        {
+            "type": "error",
+            "description": "Product not found"
+        }
+
+!--------------------------------------------------------------------------!
+!--------------------------------------------------------------------------!
+
+Actualizar stock del Producto
+    •Endpoint
+        /IProductCatalog/GetProductById
+    •Método HTTP
+        PUT
+    •Formato de serialización de intercambio
+        JSON
+    •Cabeceras de entrada
+        ----------
+    •Cabeceras de salida
+        ----------
+    •Estructura de datos de entrada del endpoint
+        {
+            "productId": 101,
+            "newStock": 150
+        }
+    •Estructura de datos de salida del endpoint (Caso satisfactorio)
+        {
+            "type": "success",
+            "description": "Stock updated successfully"
+        }
+
+    •Estructura de datos de salida del endpoint (Caso no-satisfactorio)
+        {
+            "type": "error",
+            "description": "Product not found or invalid stock value"
+        }
+
+!--------------------------------------------------------------------------!
+!--------------------------------------------------------------------------!

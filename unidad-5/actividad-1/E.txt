@@ -1,0 +1,97 @@
+
+class AuthException : public runtime_error{
+    public:
+        explicit AuthException(const string& msg): runtime_error("Auth error:" + msg){}
+};
+
+class IAuthService{
+    public:
+        virtual ~IAuthService() = default;
+        virtual string Login(const string& user, const string& password) = 0;
+        virtual bool ValidateToken(const string& token) const = 0;
+    private:
+        virtual string HashPassword(const string& plainTextPassword)const = 0; 
+};
+=============================================================================
+/////////////////////////////////////////////////////////////////////////////
+=============================================================================
+
+Iniciar Sesion
+    •Endpoint 
+        /IAuthService/Login
+    •Método HTTP 
+        POST
+    •Formato de serialización de intercambio
+        JSON
+    •Cabeceras de entrada 
+        --------
+    •Cabeceras de salida 
+        -------
+    •Estructura de datos de entrada del endpoint 
+    {
+        "user": "admin",
+        "password": "password123"
+    }
+
+    • Estructura de datos de salida del endpoint (Caso satisfactorio)
+        {
+            "token": "eyODkwIiwibmFtZSI6IkpxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c"
+        } 
+
+    •Estructura de datos de salida del endpoint (Caso no-satisfactorio)
+        {
+            "type": "error",
+            "description": "Auth error: Invalid credentials"
+        }
+
+!--------------------------------------------------------------------------!
+!--------------------------------------------------------------------------!
+
+
+Validar Token
+    •Endpoint 
+        /IAuthService/ValidateToken
+    •Método HTTP 
+        POST
+    •Formato de serialización de intercambio
+        JSON
+    •Cabeceras de entrada 
+        -------
+    •Cabeceras de salida 
+        -------
+    •Estructura de datos de entrada del endpoint 
+        {
+            "token": "eyODkwIiwibmFtZSI6IkpxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c"
+        } 
+    • Estructura de datos de salida del endpoint (Caso satisfactorio) 
+        {
+            "isValid": true
+        }
+    •Estructura de datos de salida del endpoint (Caso no-satisfactorio)
+        {
+            "type": "error",
+            "description": "Auth error: Malformed token"
+        }
+
+!--------------------------------------------------------------------------!
+!--------------------------------------------------------------------------!
+
+Validar Token
+    •Endpoint 
+        /IAuthService/ValidateToken
+    •Método HTTP 
+        POST
+    •Formato de serialización de intercambio
+        JSON
+    •Cabeceras de entrada 
+
+    •Cabeceras de salida 
+
+    •Estructura de datos de entrada del endpoint 
+
+    • Estructura de datos de salida del endpoint (Caso satisfactorio) 
+
+    •Estructura de datos de salida del endpoint (Caso no-satisfactorio)
+
+!--------------------------------------------------------------------------!
+!--------------------------------------------------------------------------!
